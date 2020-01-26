@@ -1,0 +1,278 @@
+MAIN
+    DO
+        message (String) = ( "Select an option:" + NEWLINE + "1. Calculate " +
+        "the area of a circle" + NEWLINE + "2. Calculate the area of a " +
+        "rectangle" + NEWLINE + "3. Calculate the area of a triangle" +
+        NEWLINE + "4. Calculate areas from a file" + NEWLINE + "5. Exit" )
+
+        DO
+            menu (Integer) = inputInt <- message
+        WHILE ( ( menu < 1 ) OR ( menu > 5 ) )
+
+        CASE menu
+            1:
+                circle <- none
+            2:
+                rectangle <- none
+            3:
+                triangle <- none
+            4:
+                shapeArr[] NEW ARRAY OF STRING, SIZE 20
+                dim1Arr[] NEW ARRAY OF REAL, SIZE 20
+                dim2Arr[] NEW ARRAY OF REAL, SIZE 20
+                areaArr[] NEW ARRAY OF REAL, SIZE 20
+                file <- shapeArr[], dim1Arr[], dim2Arr[], areaArr[]
+            5:
+                OUTPUT: "Goodbye :-)"
+            DEFAULT:
+                OUTPUT "Invalid answer"
+        ENDCASE
+    WHILE ( shape NOT = 5 )
+ENDMAIN
+
+SUBMODULE: file
+IMPORT: shapeArr[], dim1Arr[], dim2Arr[], areaArr[]
+EXPORT: none
+ALGORITHM:
+    OUTPUT "Enter file name"
+    INPUT fileName (String)
+    fileReader <- fileName, shapeArr[], dim1Arr[], dim2Arr[]
+    fileCalc <- shapeArr[], dim1Arr[], dim2Arr[], areaArr[]
+    fileWriter <- shapeArr[], areaArr[]
+    OUTPUT "Done!"
+END SUBMODULE
+
+SUBMODULE: fileReader
+IMPORT: fileName, shapeArr[], dim1Arr[], dim2Arr[]
+EXPORT: none
+ALGORITHM:
+    shapeFile = OPENFILE filename
+    lineNum (integer) = 0
+    shape (String)
+    dim1 (Real), dim2 (Real)
+
+    count = count + 1
+
+    TRY
+        INPUT line FROM shapeFile
+        lineNum = lineNum + 1
+        WHILE shapeFile NOT EOF
+            shape = line
+            CASE shape
+                C:
+                    INPUT line FROM shapeFile
+                    lineNum = lineNum + 1
+                    dim1 = realParser <- line
+                    dim2 = 0
+                    INPUT line FROM shapeFile
+                R: T:
+                    INPUT line FROM shapeFile
+                    lineNum = lineNum + 1
+                    dim1 = realParser <- line
+                    INPUT line FROM FILE
+                    lineNum = lineNum + 1
+                    dim2 = realParser <- line
+                    INPUT line FROM shapeFile
+                    lineNum = lineNum + 1
+                DEFAULT:
+                    OUTPUT "Error in file processing"
+            ENDCASE
+
+            TRY
+                shapeArr[shapeCount] = shape
+                dim1Arr[dim1Count] = dim1
+                dim2Arr[dim2Count] = dim2
+                count = count + 1
+            CATCH ArrayIndexOutOfBoundsException
+                OUTPUT "Maximum number of shapes exceeded, only calculating 20"
+        ENDWHILE
+        CLOSEFILE shapeFile
+
+    CATCH IOExcpetion
+        OUTPUT "Error in file processing: " + EXCEPTION MESSAGE
+END SUBMODULE
+
+SUBMODULE: fileCalc
+IMPORT: shapeArr[], dim1Arr[], dim2Arr[], areaArr[]
+EXPORT: none
+ALGORITHM:
+    count (integer) = 0
+    WHILE count < 19
+        CASE shapeArr[count]
+            "C":
+                diam (integer) = (convert to integer)dim1Arr[count]
+                areaArr[count] = circleCalc <- diam
+            "R":
+                length (Real) = dim1Arr[count]
+                width (Real) = dim2Arr[count]
+                areaArr[count] = rectangleCalc <- length, width
+            "T":
+                base (Real) = dim1Arr[count]
+                height (Real) = dim2Arr[count]
+                areaArr[count] = triangleCalc <- base, height
+        ENDCASE
+        count = count + 1
+    ENDWHILE
+END SUBMODULE
+
+SUBMODULE: realParser
+IMPORT: line (String)
+EXPORT: outDouble (Real)
+ALGORITHM:
+    TRY
+        outDouble = Double.parseDouble(line)
+    CATCH NumberFormatException
+        OUTPUT "Error in file processing: " + EXCEPTION MESSAGE
+        line = null
+    ENDCATCH
+END SUBMODULE
+
+SUBMODULE: fileWriter
+IMPORT: shapeArr[], areaArr[]
+EXPORT: none
+ALGORITHM:
+    OUTPUT TO NEW FILE output.txt
+    lineNum (integer) = 0
+    finished (boolean) = false
+    exit (boolean) = false
+    // Rectangles
+    WHILE NOT finished AND NOT exit
+        TRY
+            IF shapeArr[lineNum].equals("R")
+                OUTPUT shapeArr[lineNum] + "," + areaArr[lineNum]
+            ENDIF
+        CATCH ArrayOutOfBounds
+            finished = true
+        CATCH IOException
+            CLOSEFILE output.txt
+            exit = true
+            OUTPUT "Error in file writing"
+        ENDCATCH
+        lineNum = lineNum + 1
+    ENDWHILE
+
+    lineNum = 0
+    finished = false
+    // Circles
+    WHILE NOT finished AND NOT exit
+        TRY
+            IF shapeArr[lineNum].equals("C")
+                OUTPUT shapeArr[lineNum] + "," + areaArr[lineNum]
+            ENDIF
+        CATCH ArrayOutOfBounds
+            finished = true
+        CATCH IOException
+            CLOSEFILE output.txt
+            exit = true
+            OUTPUT "Error in file writing"
+        ENDCATCH
+        lineNum = lineNum + 1
+    ENDWHILE
+
+    lineNum = 0
+    finished = false
+    // Triangles
+    WHILE NOT finished AND NOT exit
+        TRY
+            IF shapeArr[lineNum].equals("T")
+                OUTPUT shapeArr[lineNum] + "," + areaArr[lineNum]
+            ENDIF
+        CATCH ArrayOutOfBounds
+            finished = true
+        CATCH IOException
+            CLOSEFILE output.txt
+            exit = true
+            OUTPUT "Error in file writing"
+        ENDCATCH
+        lineNum = lineNum + 1
+    ENDWHILE
+    CLOSEFILE output.txt
+END SUBMODULE
+
+SUBMODULE: circle
+IMPORT: none
+EXPORT: none
+ALGORITHM:
+    message (String) = "Enter circle diameter (cm)."
+    dim1 (Int) = inputInt( message ) // circle diameter
+    area = circleCalc( dim1 )
+    output( "circle", area )
+END SUBMODULE
+
+SUBMODULE: rectangle
+IMPORT: none
+EXPORT: none
+ALGORITHM:
+        message (String) = "Enter rectangle length (cm)."
+        dim1 (Real) = inputReal( message ) // rectangle length
+        message = "Enter rectangle width (cm)."
+        dim2 (Real) = inputReal( message ) // rectangle width
+        area = rectangleCalc( dim1, dim2 )
+        output( "rectangle", area )
+END SUBMODULE
+
+SUBMODULE: triangle
+IMPORT: none
+EXPORT: none
+ALGORITHM:
+        message = "Enter triangle base length (mm)."
+        dim1 = inputReal( message ) // triangle base
+        message = "Enter triangle height (mm)."
+        dim2 = inputReal( message ) // triangle height
+        area = triangleCalc( dim1, dim2 )
+        output( "triangle", area )
+END SUBMODULE
+
+SUBMODULE: circleCalc
+IMPORT: diam (Integer)
+EXPORT: area (Real)
+ALGORITHM:
+    radius(Real) = (Convert to Real)diam / 2.0
+    area(Real) = radius^2.0 * PI
+END SUBMODULE
+
+SUBMODULE: rectangleCalc
+IMPORT: length (Real), width (Real)
+EXPORT: area (Real)
+ALGORITHM:
+    area(Real) = length * width
+END SUBMODULE
+
+SUBMODULE: triangleCalc
+IMPORT: base (Real), height (Real)
+EXPORT: area (Real)
+ALGORITHM:
+    area(Real) = ((base * height) / 2.0) / 100
+END SUBMODULE
+
+SUBMODULE: inputInt
+IMPORT: message (String)
+EXPORT: output (Integer)
+ALGORITHM:
+    DO
+        OUTPUT message
+        message = "Error: Invalid input" + message
+        INPUT output
+    WHILE ( output <= 0)
+END SUBMODULE
+
+SUBMODULE: inputReal
+IMPORT: message (String)
+EXPORT: output (Real)
+ALGORITHM:
+    DO
+        OUTPUT message
+        message = "Error: Invalid input" + message
+        INPUT output
+    WHILE ( output <= 0)
+END SUBMODULE
+
+SUBMODULE: output
+IMPORT: shape (String), area (Real)
+EXPORT: None
+    cm (Integer) = (Convert to Int)area MOD 10000
+    m (Integer) = (Covert to Int)area DIV 10000
+    mm (Real) = (area - (Convert to Int)area) * 100
+    OUTPUT "The area of the " + shape + "is " + m + "m^2, " + cm + "cm^2, " +
+    mm + "mm^2."
+END SUBMODULE

@@ -1,0 +1,97 @@
+MAIN
+    nameArray[] ARRAY OF STRING, SIZE 20
+    markArray[] ARRAY OF INTEGER, SIZE 20
+    OUTPUT "Enter file name"
+    INPUT fileName (String)
+
+    fileReader <- nameArray, markArray, fileName
+
+    WHILE exitPrompt == 1 AND !errorExit
+        OUTPUT "Enter name of student"
+        INPUT nameInput (String)
+        found (boolean) = false
+        count (integer) = 0
+        WHILE count < 20 AND !found
+            IF nameArray[ count ].equals( nameInput )
+                found = true
+            ELSE
+                count = count + 1
+            ENDIF
+        ENDWHILE
+        IF found
+            OUTPUT "Mark: " + markArray[ count ]
+        ELSE
+            OUTPUT "Student not found"
+        ENDIF
+    ENDWHILE
+        
+ENDMAIN
+
+SUBMODULE: fileReader
+IMPORT: nameArray, markArray, fileName (String)
+EXPORT: None
+ALGORITHM:
+    count (Integer) = 0
+    name (String) = readLine <- fileName
+    mark (String) = readLine <- fileName
+    errorExit (boolean) = false
+    TRY 
+        WHILE name NOT NULL AND mark NOT NULL
+            nameArray[count] = name
+            TRY
+                markArray[ count ] = Double.parseDouble( mark )
+            CATCH NumberFormatException
+                // Line can't be a double
+                num = NULL
+            ENDCATCH
+            CATCH NullPointerException
+                // Line is null
+                num = NULL
+            ENDCATCH
+            count = count + 1
+            name = readLine <- fileName
+            mark = readLine <- fileName
+        ENDWHILE
+    CATCH IOException
+        OUTPUT "Invalid lines in file"
+        errorExit = true
+    ENDCATCH
+    CATCH ArrayIndexOutOfBoundsException
+        OUTPUT "Over 20 lines in file, only using first 20"
+    ENDCATCH
+
+
+END SUBMODULE
+
+SUBMODULE: exitPrompt
+IMPORT: none
+EXPORT: output (integer)
+ALGORITHM:
+    message (String) = "Select an option:" + NEWLINE + "1. Display mark" +
+    NEWLINE + "2. Exit"
+    OUTPUT message
+
+    DO
+        TRY
+            INPUT output (integer)
+            loop (boolean) = false;
+        CATCH InputMismatchException e
+            output = 0
+            sc.nextLine()
+            OUTPUT "Error, Invalid Input: Input must be " +
+                "an Integer." + NEWLINE + message
+                loop = true
+        ENDCATCH
+    WHILE loop
+    
+    WHILE ( output < 1 ) || ( output > 2 )
+        IF output < 1
+            OUTPUT "Error, Invalid Input" + NEWLINE + message
+            INPUT output
+        ELSE IF output > 2
+            OUTPUT "Error, Invalid Input" + NEWLINE + message
+            INPUT output
+        ENDIF
+    ENDWHILE
+END SUBMODULE
+
