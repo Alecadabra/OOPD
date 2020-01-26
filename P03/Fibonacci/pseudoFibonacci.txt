@@ -1,0 +1,34 @@
+MAIN
+    DO
+        menu (String) = "Select and option:\n1. Input a number\n2. Exit"
+        error (String) = "Error: Inalid selection.\n"
+        strMenu (String) = menu
+        DO
+            OUTPUT strMenu
+            INPUT select (Integer)
+            strMenu = error + menu
+        WHILE ((select < 1) OR (select > 2))
+        
+        IF (select == 1)
+            menu = "Input a number between 0 and 20"
+            error = "Error: Invalid input.\n"
+            strMenu = menu
+            DO
+                OUTPUT strMenu
+                INPUT number (Integer)
+                strMenu = error + menu
+            WHILE ((number <= 0) || (number >= 20))
+            
+            fibonacci(ARRAY OF Int) size of 19
+
+            fibonacci[0] = 0
+            fibonacci[1] = 1
+
+            FOR i = 2 TO 19 INC 1
+                fibonacci[i] = (fibonacci[i - 1]) + (fibonacci[i - 2])
+            ENDFOR
+
+            OUTPUT fibonacci[number - 1]
+        ENDIF
+    WHILE ( select != 2)
+ENDMAIN

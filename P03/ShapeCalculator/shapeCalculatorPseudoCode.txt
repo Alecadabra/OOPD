@@ -1,0 +1,73 @@
+menu(String) := "Choose shape: Circle - 1, Rectangle - 2, Triangle - 3. Or exit with 4."
+error(String) := "Error: Invalid input. "
+
+DO
+
+str(String) := menu
+
+    DO
+        OUTPUT str
+        str := error + menu
+        INPUT shape(Int)
+    WHILE ( shape < 1 ) || ( shape > 4 )
+
+    CASE shape
+        1: 
+            strDiam(String) := "Enter circle diameter (cm)."
+            DO
+                OUTPUT strDiam
+                strDiam := error + strdiam
+                INPUT diam (Int)
+            WHILE ( diam <= 0)
+            radius(Real) := (Convert to Real)diam / 2.0
+            area(Real) := radius^2.0 * PI
+            areaCmsqr(Int) := (Convert to Int)area MOD 10000
+            areaMsqr(Int) := (Covert to Int)area DIV 10000
+            areaMmsqr(Real) := (area - (Convert to Int)area) * 100
+            OUTPUT "The area of the circle is " + areaMsqr + "m^2, " + areaCmsqr + "cm^2, " + areaMmsqr + "mm^2."
+
+        2: 
+            strLength(String) := "Enter rectangle length (cm)."
+            DO
+                OUTPUT strLength
+                strLength := error + strLength
+                INPUT length(Real)
+            WHILE ( length <= 0.0)
+            strWidth(String) := "Enter rectangle width (cm)."
+            DO
+                OUTPUT strWidth
+                strWidth := error + strWidth
+                INPUT width(Real)
+            WHILE ( width <= 0.0)
+            area(Real) := length * width
+            areaCmsqr(Int) := (Convert to Int)area MOD 10000
+            areaMsqr(Int) := (Convert to Int)area / 10000
+            areaMmsqr(Real) := (area - (Convert to Int)area) * 100
+            OUTPUT "The area of the rectangle is " + areaMsqr + "m^2, " + areaCmsqr + "cm^2, " + areaMmsqr + "mm^2."
+
+        3: 
+            strBase(String) := "Enter triangle base length (mm)."
+            DO
+                OUTPUT strBase
+                strBase := error + strBase
+                INPUT base(Real)
+            WHILE ( base <= 0)
+            strHeight(String) := "Enter triangle height (mm)."
+            DO
+                OUTPUT strHeight
+                strHeight
+                INPUT height(Real)
+            WHILE ( height <= 0)
+            area(Real) := (base * height) / 2.0
+            area2(Real) := area / 100.0
+            areaCmsqr(Int) := (Convert to Int)area2 MOD 10000
+            areaMsqr(Int) := (Convert to Int)area2 / 10000
+            areaMmsqr(Real) := (area2 - (Convert to Int)area2) * 100
+            OUTPUT "The area of the triangle is " + areaMsqr + "m^2, " + areaCmsqr + "cm^2, " + areaMmsqr + "mm^2."
+
+        4: OUTPUT "Goodbye"
+
+        DEFAULT: OUTPUT "Invalid answer"
+    ENDCASE
+
+WHILE ( shape != 4)

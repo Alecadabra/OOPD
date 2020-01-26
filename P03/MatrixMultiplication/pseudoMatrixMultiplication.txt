@@ -1,0 +1,38 @@
+MAIN
+    OUTPUT "Enter file name of matrix A"
+    fileOne = ArrayReader.getFileName
+    OUTPUT "Enter file name of matrix B"
+    fileTwo = ArrayReader.getFileName
+    // gets an input of the filename of each matrix .txt
+
+    matrixOne = ArrayReader.readArray(fileOne)
+    matrixTwo = ArrayReader.readArray(fileTwo)
+    // assigns matrixOne & matrixTwo to 2D arrays of the imported matricies
+
+    IF matrixOne OR matrixTwo = NULL THEN
+        OUTPUT "Invalid input files"
+    ELSE IF (matrixOne[0].length == matrixTwo.length) THEN
+    //checks if no. of columns of mA == no. of rows of mB.
+        matrixThree(ARRAY OF Integer)
+        (SIZE [matrixOne.length][matrixTwo[0].length]
+        // creates mC's array. it's size is mA's rows by mB's columns
+        
+        // A[i,r] * B[r,j] = C[i,j]
+        iLength (Integer) = matrixOne.length
+        rLength (Integer) = matrixTwo.length
+        jLength (Integer) = matrixTwo[0].length
+
+        FOR int i = 0 TO iLength INC 1
+            FOR int j = 0 TO jLength INC 1
+                FOR int r = 0 TO rLength INC 1
+                    matrixThree[i][j] = matrixOne[i][r] * matrixTwo[r][j]
+                ENDFOR
+            ENDFOR
+        ENDFOR
+
+    ELSE
+        OUTPUT "Error: No. of columns of the 1st matrix are not equal to
+        number of rows of the 2nd matrix."
+
+    ENDIF
+ENDMAIN

@@ -1,0 +1,25 @@
+Program: MatrixMultiplication.java
+Design Date: 21/03/2019
+Test Date: 21/03/2019
+
+Total Tests: 4
+Tests Passed: 4
+Tests Failed: 0
+
+Note: N = user input
+
+TEST RESULTS:
+ID: Category:     Test Data:     Expected Behaviour:       Actual Behaviour:              Pass(P)/Fail(F)
+___________________________________________________________________________________________________________
+1   valid         "matrixA.txt"     9, 15                       9, 15                           P
+                  "matrixB.txt"     3, 5                        3, 5
+____________________________________________________________________________________________________________
+2   valid         "matrixB.txt"     9, 6, 3                     9, 6, 3                         P
+                  "matrixA.txt"     9, 6, 3                     9, 6, 3
+                                    15, 10, 5                   15, 10, 5
+____________________________________________________________________________________________________________
+3   invalid       "matrixC.txt"     "Error message" AND         "Error message" AND             P
+                                    Return to "Enter file A"    Return to "Enter file A"
+____________________________________________________________________________________________________________
+4   invalid       "matrixA.txt"     "Error message' AND         "Error message' AND             P
+                  "matrixA.txt"     "Retrun to prompt"          "Return to prompt"

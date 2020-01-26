@@ -1,0 +1,16 @@
+OUTPUT "Enter number please"
+INPUT num (Integer)
+
+ii(Integer) = 0
+answer(Integer) = 1
+
+WHILE (ii < num) AND (num > 0)
+    ii = ii + 1
+    answer = answer * ii
+ENDWHILE
+
+IF num < 0
+    OUTPUT "Invalid Input"
+ELSE
+    OUTPUT num + "! = " + answer
+ENDIF
