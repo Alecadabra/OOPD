@@ -1,0 +1,208 @@
+CLASS: SubClass
+
+PUBLIC CLASS CONSTANTS: STEEL = "STEEL"
+                        ALL = "ALLOY"
+                        TITAN = "TITANIUM"
+CLASS FIELDS: serial (real)
+              year (integer)
+              Eng (EngineClass)
+              depth (real)
+              hull (String)
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: address of new SubmarineClass object
+    ASSERTION: creates object with valid classfields(?)
+    ALGORITHM: 
+        serial = 150.500
+        year = 2000
+        CONSTRUCT Eng CLASS EngineClass DEFAULT
+        depth = -250.0
+        hull = ALL
+
+Alternate:
+    IMPORT: inSerial (real), inYear (integer), inEng (EngineClass),
+        inDepth (real), inHull (String)
+    EXPORT: address of new SubmarineClass object
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        IF ( validateSerial <- inSerial ) AND
+        ( validateYear <- inYear ) AND
+        (validateEng<-inEng) AND
+        ( validateDepth <- inDepth ) AND
+        ( validateHull <- inHull ) THEN
+            serial = inSerial
+            year = inYear
+            Eng = inEng
+            depth = inDepth
+            hull = inHull
+        ELSE
+            FAIL
+        END IF
+
+Copy:
+    IMPORT: inSubmarine (SubmarineClass)
+    EXPORT: adress of new SubmarineClass object
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM: 
+        serial = inSubmarine.getSerial<-none
+        year = inSubmarine.getYear<-none
+        CONSTRUCT Eng CLASS EngineClass COPY inSub.getEng<-none
+        depth = inSubmarine.getDepth<-none
+        hull = inSubmarine.getHull<-none
+
+Clone:
+    SUMBODULE: clone
+    IMPORT: none
+    EXPORT: cloneSubmarineClass (Submarine)
+    ALGORITHM: 
+        cloneSubmarineClass (Submarine) = NEW SubmarineClass <- THIS
+    END SUMBODULE
+
+Accesors:
+    SUBMODULE: getSerial
+    IMPORT: none
+    EXPORT: serial (real)
+    
+    SUBMODULE: getYear
+    IMPORT: none
+    EXPORT: year (integer)
+
+    SUBMODULE: getEng
+    IMPORT: none
+    EXPORT: CONSTRUCT Eng CLASS EngineClass COPY Eng
+    
+    SUBMODULE: getDepth
+    IMPORT: none
+    EXPORT: depth (real)
+    
+    SUBMODULE: getHull
+    IMPORT: none
+    EXPORT: hull (String)
+    
+Equals:
+    SUBMOLDULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ALGORITHM: 
+        same = false
+        IF (inObj ISA SubmarineClass) THEN
+            inSubmarine = (Convert to SubmarineClass)inObj
+            same = ( (Double.toString(serial)).equals((inObj.getSerial<-none))
+            AND (year == inObj.getYear<-none) AND (Eng.equals(inObj.getEng)
+            AND (Math.abs(depth - inObj.getDepth)) < 0.001 AND
+            (hull.equals(inObj.getHull)) )
+        ENDIF
+    END SUBMODULE
+
+toString:
+    SUBMODULE: toString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM:
+        str = "The ship " + serial + " was comissioned in " + year + "ENGINE"
+        + "It is a submarine with a " + hull + " hull and a max depth of "
+        + depth + " meters."
+    END ALGORITHM
+
+toFileString:
+    SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM: 
+        str = ( "S," + serial + "," + "ENGINE" + "," + hull + "," + depth )
+    END SUBMODULE
+
+    SUMBODULE: calcTravel
+    IMPORT: inDistance (int)
+    EXPORT: hours (real)
+    ASSERTION: Finds number of hours taken to travel distance
+    ALGORITHM:
+        CONVERT CYLINDERS AND INDISTANCE TO REAL
+        hours = (distance/cylinders)*(1/(10+(depth * -1)))
+    ENDSUBMODULE
+
+MUTATORS:
+    SUBMODULE: setSerial
+    IMPORT: inSerial
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateSerial<-inSerial ) THEN
+            serial = inSerial
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: setYear
+    IMPORT: inYear
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateYear<-inYear ) THEN
+            year = inYear
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: setDepth
+    IMPORT: inDepth
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateDepth ) THEN
+            depth = inDepth
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: setHull
+    IMPORT: inHull
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateHull<-inHull ) THEN
+            hull = inHull
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+PRIVATE SUBMODULES:
+    SUBMODULE: validateSerial
+    IMPORT: inSerial
+    EXPORT: valid (boolean)
+    ASSERTION: XXX.YYY, XXX (100-300 inc), YYY (001-999 inc)
+    ALGORITHM: 
+        valid = ( (Convert to integer)inSerial  >= 100 ) AND
+        ( (Convert to integer)inSerial <= 300 ) AND 
+        ( (Convert to integer)(inSerial * 1000000) MOD 1000  == 0 ) 
+    END SUBMODULE
+
+    SUBMODULE: validateYear
+    IMPORT: inYear
+    EXPORT: valid (boolean)
+    ASSERTION: integer between 1950 and 2022 inclusive
+    ALGORITHM: 
+        valid = ( inYear >= 1950 ) AND ( inYear <= 2022 )
+    END SUBMODULE
+
+    SUBMODULE: validateDepth
+    IMPORT: inDepth
+    EXPORT: valid (boolean)
+    ASSERTION: real num (-500.0 to 0.0 inc)
+    ALGORITHM: 
+        valid = ( ( inDepth > -500.0 ) AND ( inDepth < 0.0 ) ) OR
+        ( ( Math.abs(inDepth + 500.0) < 0.001 ) AND
+        ( Math.abs(inDepth) < 0.001 ) )
+    END SUBMODULE
+
+    SUBMODULE: validateHull
+    IMPORT: inHull
+    EXPORT: valid (boolean)
+    ASSERTION: String, either "STEEL" or "ALLOY" or "TITANIUM".
+    ALGORITHM: 
+        valid = ( inHull.equals( STEEL ) ) OR ( inHull.equals( ALL ) )
+        OR ( inHull.equals( TITAN ) )
+    END SUBMODULE
+

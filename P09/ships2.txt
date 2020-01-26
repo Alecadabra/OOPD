@@ -1,0 +1,12 @@
+S,123.123,1999,5,bio,steel,-34.0
+S,123.123,1999,5,bio,steel,-34.0
+S,123.123,1999,9,bio,alloy,-34.0
+S,123.123,1999,5,bio,steel,-34.0
+S,123.123,1999,5,bio,steel,-34.0
+S,123.123,1999,9,bio,alloy,-34.0
+S,123.123,1999,5,bio,steel,-34.0
+S,123.123,1999,5,bio,steel,-34.0
+S,123.123,1999,9,bio,alloy,-34.0
+F,132.212,2000,7,diesel,14.1,Machine guns, rockets
+F,132.212,2000,7,diesel,14.1,Machine guns, rockets
+F,132.212,2000,7,diesel,14.1,Machine guns, rockets

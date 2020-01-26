@@ -1,0 +1,12 @@
+CLASS: ShipManager
+
+MAIN
+    TRY
+        CONSTRUCT UserInterface ( UI DEFAULT CONSTRUCTOR )
+        UserInterface.mainMenu<-none
+    CATCH Exception
+        FAIL
+    ENDCATCH
+ENDMAIN
+
+

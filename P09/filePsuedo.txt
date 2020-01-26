@@ -1,0 +1,71 @@
+CLASS: File
+
+    //UI class constants
+ 
+    SUBMODULE: load
+    IMPORT: fileName (String), Ships (ShipStorage)
+    EXPORT: none
+    ASSERTION: Reads ships from file and adds them to storage
+    ALGORITHM:
+        lineNum (integer) = 1
+        READ FILE fileName
+        fullLine (String) = READ LINE
+        WHILE (fullFine != EOF)
+            line (ARRAY OF String) = fullLine.split<- ",", 7
+            type = Ships.inputType<-line[0]
+            IF type == 'S' THEN
+                CONSTRUCT Sub CLASS SubClass DEFAULT
+                Ships.inputSerial<-Sub, line[1]
+                Ships.inputYear<-Sub, line[2]
+                Ships.inputEng<-Sub, line[3], line[4]
+                Ships.inputHull<-Sub, line[5]
+                Ships.inputDepth<-Sub, line[6]
+                Ships.addShip<-Sub
+            ELSE IF( ( type == 'F' ) || ( type == 'J' ) ) THEN
+                CONSTRUCT Jet CLASS JetClass DEFAULT
+                Ships.inputSerial<-Jet, line[1]
+                Ships.inputYear<-Jet, line[2]
+                Ships.inputEng<-Jet, line[3], line[4]
+                Ships.inputWing<-Jet, line[5]
+                Ships.inputOrdnance<-Jet, line[6]
+                Ships.addShip<-Jet
+            ENDIF
+            line = READ LINE
+            lineNum (integer) = lineNum + 1
+        ENDWHILE
+        CLOSE FILE
+        CATCH IOException
+            THROW IllegalArgumentException("File reading error")
+        ENDCATCH
+        OUTPUT UIDOT + "Loaded " + ( lineNum - 1 ) + " ships
+    ENDSUBMODULE
+
+    SUBMODULE: save
+    IMPORT: fileName (String), Ships (ShipStorage)
+    EXPORT: none
+    ASSERTION: Saves all ships in storage to file
+    ALGORITHM:
+        TRY
+            MAKE FILE fileName
+            totShips (integer) = Ships.getSubNum + Ships.getJetNum
+            fileArr = NEW ARRAY OF STRING SIZE OF Ships.getTotal<-none
+            FOR i = 0 TO Ships.getSubNum<-none INC 1
+                PRINT LINE Ships.getSub<-i.toFileString<-none
+            ENDFOR
+            FOR i = 0 TO Ships.getJetNum INC 1
+                PRINT LINE Ships.getJet<-i.toFileString<-none
+            ENDFOR
+            CLOSE FILE
+        CATCH ArrayOutOfBounds
+            THROW EXCEPTION
+        ENDCATCH
+        CATCH IOException
+            IF STREAM IS NULL
+                TRY
+                    CLOSE FILE
+                CATCH IOException
+                ENDCATCH
+            ENDIF
+            THROW EXCEPTION
+        ENDCATCH
+    ENDSUBMODULE
