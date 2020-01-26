@@ -1,0 +1,190 @@
+CLASS: ShipStorage
+
+PUBLIC CLASS CONSTANTS: MAXSHIPS (int) = 15
+
+CLASS FIELDS: subArr = NEW ARRAY OF SubClass
+              jetArr = NEW ARRAY OF JetClass
+              subNum (int)
+              jetNum (int)
+
+CONSTRUCTOR:
+Default:
+    IMPORT: none
+    EXPORT: memory address of new ShipStorage object
+    ASSERTION: initialises arrays
+    ALGORITHM:
+        subArr SIZE OF MAXSHIPS
+        jetArr SIZE OF MAXSHIPS
+        subNum = 0
+        jetNum = 0
+    ENDSUBMODULE
+
+    SUBMODULE: addShip
+    IMPORT: inSub (SubClass)
+    EXPORT: none
+    ASSERTION: adds sub object to subArr if there is space in the array
+        and the object is not null
+    ALGORITHM:
+        IF ( inSub NOT NULL ) AND ( subNum < MAXSHIPS )
+            subArr[subNum] = inSub
+            subNum = subNum + 1
+        ELSE
+            FAIL
+        ENDIF
+    ENDSUBMODULE
+       
+    SUBMODULE: addShip
+    IMPORT: inJet (JetClass)
+    EXPORT: none
+    ASSERTION: adds jet object to jetArr if there is space in the array and
+        the object is not null
+    ALGORITHM:
+        if ( inJet NOT NULL ) AND ( jetNum < MAXSHIPS )
+            jetArr[jetNum] = inJet
+            jetNum = jetNum + 1
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: destinationCheck
+    IMPORT: dist (integer)
+    EXPORT: outShip (String)
+    ASSERTION: Loops through both arrays and uses calcTravel to find the ship
+        that travels dist in the shortest amount of time and outputs String of
+        fastest ship
+    ALGORITHM: 
+        IF ( subArr[0] NOT NULL ) THEN
+            fastSub (real) = subArr[0].calcTravel<-dist
+            outSub (String) = ( "Ship " + subArr[0].getSerial +
+                " is the fastest at " + fastSub + " hours." )
+        ENDIF
+        FOR i = 1 TO ( subNum - 1 ) INC 1
+            IF ( subArr[i].calcTravel<-dist < fastSub ) THEN
+                fastSub = subArr[i].calcTravel<-dist
+                outSub = ( "Ship " + subArr[i].getSerial +
+                    " is the fastest at " + fastSub + " hours." )
+            ENDIF
+        ENDFOR
+
+        IF ( jetArr[0] NOT NULL ) THEN
+            fastJet (real) = jetArr[0].calcTravel<-dist
+            outJet (String) = ( "Ship " + jetArr[0].getSerial +
+                " is the fastest at " + fastJet + " hours." )
+        ENDIF
+        FOR i = 1 TO ( jetNum - 1 ) INC 1
+            IF ( jetArr[i].calcTravel<-dist < fastJet ) THEN
+                fastJet = jetArr[i].calcTravel<-dist
+                outJet = ( "Ship " + jetArr[i].getSerial +
+                    " is the fastest at " + fastJet + " hours." )
+            ENDIF
+        ENDFOR
+
+        IF ( fastSub < fastJet ) THEN
+            fastShip = fastSub
+            outShip = outSub
+        ELSE 
+            fastShip = fastJet
+            outShip = outJet
+        ENDIF
+
+        //Stub
+        outShip = "DestinationCheck not yet implemented"
+    ENDSUBMODULE
+
+    SUBMODULES: findDuplicates
+    IMPORT: none
+    EXPORT: dupeArr (ARRAY OF String)
+    ASSERTION: finds duplicate ships and stores their .toString's in an array
+    ALGORITHM:
+        arrCount (integer) = 0
+        dupeArr = NEW ARRAY OF String, SIZE OF MAXSHIPS
+        FOR i = 0 TO MAXSHIPS INC 1
+            IF ( !(subArr[i].equals("")) AND !(jetArr[i].equals("") )  THEN
+                FOR j = 0 TO MAXSHIPS INC 1
+                    IF ( !(subArr[j].equals("")) AND (i != j) AND
+                        (subArr[i].equals<-subArr[j]) ) THEN
+                        dupeArr[arrCount] = subArr[i].toString
+                        arrCount = arrCount + 1
+                    ELSE IF ( !(jetArr[j].equals("")) AND (i != j) AND
+                        (jetArr[i].equals<-jetArr[j]) THEN
+                        dupeArr[arrCount] = jetArr[i].toString
+                        arrCount = arrCount + 1
+                    ENDIF
+                ENDFOR
+            ENDIF
+        ENDFOR    
+    ENDSUBMODULE
+
+    SUBMODULE: viewShips
+    IMPORT: none 
+    EXPORT: ships (String)
+    ASSERTION: puts all ship's .toString's in a single String
+    ALGORITHM:
+        ships (String) = ""
+        FOR i = 0 TO ( subNum - 1 ) INC 1
+            ships = ships + subArr[i].toString + NEWLINE
+        ENDFOR
+        FOR i = 0 TO ( jetNum - 1 ) INC 1
+            ships = ships + jetArr[i].toString + NEWLINE
+        ENDFOR
+    ENDSUBMODULE
+
+ACCESSORS:
+    ???
+
+MUTATORS:
+    SUBMODULE: setSub
+    IMPORT: inObj (Object), index (integer)
+    EXPORT: none
+    ASSERTION: sets the SubClass object at the specified index unless
+        the index is not initialised
+    ALGORITHM:
+        IF inObj ISA SubClass
+            inSub (SubClass) = (Convert to SubClass)inObj
+            IF index < subNum THEN
+                subArr[index] = inSub
+            ELSE
+                FAIL
+            ENDIF
+        ELSE
+            FAIL
+        ENDIF
+    ENDSUBMODULE
+
+    SUBMODULE: setJet
+    IMPORT: inObj (Object), index (integer)
+    EXPORT: none
+    ASSERTION: sets the JetClass object at the specified index unless
+        the index is not initialised
+    ALGORITHM:
+        IF inObj ISA JetClass
+            inJet (SubClass) = (Convert to JetClass)inObj
+            IF index < jetNum THEN
+                jetArr[index] = inJet
+            ELSE
+                FAIL
+            ENDIF
+        ELSE
+            FAIL
+        ENDIF
+    ENDSUBMODULE
+
+EQUALS:
+    SUBMODULE: equals
+    IMPORT: arrayOne (ARRAY OF Object), arrayTwo (ARRAY OF Object)
+    EXPORT: equal (boolean)
+    ASSERTION:
+    ALGORITHM:
+        equal = true
+        IF LENGTH OF arrayOne NOT EQUAL LENGTH OF arrayTwo THEN
+            equal = false
+        ELSE
+            count = 0
+
+            DO
+                equal = arrayOne[count].equals<-arrayTwo[count]
+                count = count + 1
+            WHILE equal AND count < LENGTH OF arrayOne
+        ENDIF
+    ENDSUBMODULE

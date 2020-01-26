@@ -1,0 +1,2 @@
+S,213.312,1999,8,BaTtErY,steel,-35.0
+F,197.542,1998,8,BaTtErY,5.67,10 mark 8 torpedos

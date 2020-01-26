@@ -1,0 +1,438 @@
+CLASS: UI
+
+PUBLIC CLASS CONSTANTS:
+    UIDOT (String) = NEW String<-"[-] " //For messages
+    UITAB (String) = NEW String<-" |  " //For continuing messages
+    UIERR (String) = NEW String<-"[!] " //For errors
+    UIINP (String) = NEW String<-"[>] " //For user input
+
+    // Constants for utility headers also (UIM, UIL, etc)
+
+CLASS FIELDS: Ships (ShipStorage)
+
+CONSTRUCTOR:
+Default:
+    IMPORT: none
+    EXPORT: memory address of new UI Object
+    ASSERTION: initialises Ships Object
+    ALGORITHM:
+        Ships = NEW ShipStorage<-none
+    ENDSUBMODULE
+
+    SUBMODULE: mainMenu
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: displays the main menu to the user
+    ALGORITHM:
+        exit (boolean) = false
+        title<-none
+        WHILE !exit
+            OUTPUT ( UIM + UIDOT + "Main menu" + NEWLINE + UITAB + NEWLINE +
+                UITAB + "L - Load Ships from a file" + NEWLINE +
+                UITAB + "S - Save Ships to a file" + NEWLINE +
+                UITAB + "N - Create a new Ship" + NEWLINE +
+                UITAB + "V - View all Ships" + NEWLINE +
+                UITAB + "D - Destination Check" + NEWLINE +
+                UITAB + "F - Find Duplicates" + NEWLINE +
+                UITAB + "E - Exit program" + NEWLINE + UITAB + NEWLINE )
+            menu (char) = inputMenu<-none
+            CASE menu
+                'L': 'l':
+                    //Load ships from file
+                    OUTPUT UIL
+                    loadShips<-none
+                'S': 's':
+                    //Save ships to file
+                    OUTPUT UIS
+                'N': 'n':
+                    createShip<-none
+                'V': 'v':
+                    OUTPUT ( UIV + viewShips<-none )
+                'D': 'd':
+                    OUTPUT UID
+                    OUTPUT ( destinaion<-none + NEWLINE )
+                'F': 'f':
+                    OUTPUT ( UIF + duplicatesString<-none + NEWLINE )
+                'E': 'e':
+                    OUTPUT UIE + NEWLINE
+                    exit = true
+                    //exit = inputBoolean<-
+                    //    ( UIDOT + "Are you sure you want to exit? (y/n)"),
+                    //         'y', 'n'
+            ENDCASE
+        ENDWHILE
+    ENDSUBMODULE
+        
+    SUBMODULE: inputMenu
+    IMPORT: none
+    EXPORT: menu (char)
+    ASSERTION: Gets a user input char either l,s,n,v,d,f,e upper/lower case
+    ALGORITHM:
+        menu (char) = '0'
+        message (String) = NEW String( UIDOT + "Please select an option" )
+        error (String) = ("")
+        inString (String) = NEW String("")
+        DO
+            OUTPUT error + message + NEWLINE + UIINP
+            INPUT inString
+            CASE inString.CHARAT(0).TOUPPERCASE
+                'L': 'S': 'N': 'V': 'D': 'F': 'E':
+                    menu = inString.CHARAT(0).TOUPPERCASE
+                    error = ("")
+                DEFAULT:
+                    message = ( UIERR + "Error: Menu selection must be a valid"
+                        + " menu option" + NEWLINE )
+            ENDCASE
+        WHILE !error.equals("")
+    ENDSUBMODULE            
+
+    SUBMODULE: createShip
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: creates new sub or jet from user input and adds to respective
+        array in Ships
+    ALGORITHM:
+        loop (boolean) = false
+        DO
+            OUTPUT ( NEWLINE + "[N] New Ship" + NEWLINE )
+            sub (boolean) = inputBoolean<-( UIDOT + "Enter ship type"),
+                's', 'j')
+            serial (String) = inputSerial<-none
+            year (integer) = inputYear<-none
+            fuel (String) = inputFuel<-none
+            cyl (integer) = inputCyl<-none
+            inputEngine (EngineClass) = NEW EngineClass<-fuel,cyl
+            IF (sub) THEN //Runs if ship is a submarine
+                depth (real) = inputDepth<-none
+                hull (String) = inputHull<-none
+                inputSub (SubClass) = NEW SubClass<-serial,year,hull,depth
+                Ships.addShip<-inputSub
+            ELSE //Runs if ship is a fighter jet
+                ordnance (String) = inputOrdnance<-none
+                wing (double) = inputWing<-none
+                inputJet (JetClass) = NEW JetClass<-serial,year,ordnance,wing
+                Ships.addShip<-inputJet
+            ENDIF
+            OUTPUT ( UITAB + "Ship added sucessfully" + NEWLINE )
+            loop = inputBoolean<-( UIDOT + "Add another ship? (y/n)"),
+                'y', 'n' )
+            //Loop condition for whether or not the user wants to add another
+            //ship
+        WHILE loop
+    ENDALGORITHM
+
+    SUBMODULE: inputBoolean
+    IMPORT: message (String), trueChar (character), falseChar (character)
+    EXPORT: out (boolean)
+    ASSERTION: Gets user input of a charactr for boolean output
+        based on imported message String and two imported valid chars
+    ALGORITHM:
+        error (String) = NEW String("")
+        trueCharUp (char) = trueChar.TOUPPERCASE<-none
+        falseCharUp (char) = falseChar.TOUPPERCASE<-none
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            TRY
+                INPUT inString
+                inChar (character) = inString.CHARAT<-0
+                IF (inChar == trueChar) OR (inChar == trueCharUp) THEN
+                    out (boolean) = true
+                    error = ""
+                ELSE IF (inChar == flaseChar) OR (inChar == falseCharUp)
+                    out = false
+                    error = ""
+                ELSE:
+                    error = ( UIERR + "Error: Input must be " + trueChar +
+                        " or " + falseChar + NEWLINE )
+                ENDIF
+            CATCH InputMismatchException
+                CLEAR INPUT BUFFER
+                error = ("Error: Input must be " + trueChar + " or "
+                    + falseChar + NEWLINE )
+            CATCH StringOutOfBoundsException
+                CLEAR INPUT BUFFER
+                error = UIERR + "Error: Input cannot be empty" + NEWLINEa
+            ENDCATCH
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: inputSerial
+    IMPORT: none
+    EXPORT: serial (String)
+    ASSERTION: Gets a user input serial number for a ship (XXX.YYY).
+    ALGORITHM:
+        error (String) = NEW String("")
+        message (String) = NEW String(UIDOT + "Enter ship serial number")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            INPUT serial
+            IF validateSerial<-serial THEN
+                error = ("")
+            ELSE
+                error = ( UIERR + "Error: Serial number must start with 3 "
+                    + "digits between 001" + NEWLINE + UITAB +
+                    "and 300 inclusive and end in any three digits (###.###)"
+                    + NEWLINE )
+            ENDIF
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: validateSerial //Copy from SubClass
+    
+    SUBMODULE: inputYear
+    IMPORT: none
+    EXPORT: year (integer)
+    ASSERTION: Gets user input manufacturing year integer for a ship
+    ALGORITHM:
+        message (String) = NEW String(UIDOT + "Enter ship manufacturing year")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            TRY
+                INPUT year (integer)
+                IF validateYear<-year THEN
+                    error = ""
+                ELSE
+                    error = ( UIERR + "Error: Year must be between 1950 and"
+                        + " 2022 inclusive" + NEWLINE )
+                ENDIF
+            CATCH InputMismatchException
+                CLEAR INPUT BUFFER
+                error = ( UIERR + "Error: " + EXCEPTIONMESSAGE + NEWLINE )
+            ENDCATCH
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: validateYear //Copy from SubClass
+
+    SUBMODULE: inputFuel
+    IMPORT: none
+    EXPORT: fuel (String)
+    ASSERTION: Gets user input fuel type for a ship's engine
+    ALGORITHM:
+        message (String) = NEW String(UIDOT + "Enter the fuel type")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            INPUT fuel (String)
+            IF validateFuel<-fuel THEN
+                error = ""
+            ELSE
+                error = ( UIERR + "Error: Fuel must be Battery, Diesel or Bio"
+                    + NEWLINE )
+            ENDIF
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: validateFuel //Copy from EngineClass
+
+    SUBMODULE: inputCyl
+    IMPORT: none
+    EXPORT: cyl (integer)
+    ASSERTION: Gets user input number of cylinders for a ship's engine
+    ALGORITHM:
+        message (String) = NEW String(UIDOT + "Enter the number of cylinders")
+        error = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            TRY
+                INPUT cyl (integer)
+                IF validateCyl<-cyl THEN
+                    error = ""
+                ELSE
+                    error = ( UIERR + "Error: Number of cylinders must be "
+                        + "between 2 and 20 inclusive" + NEWLINE )
+                ENDIF
+            CATCH InputMismatchException
+                CLEAR INPUT BUFFER
+                error = ( UIERR + "Error: Number of cylinders must be an" +
+                    " integer" + NEWLINE )
+            ENDCATCH
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: validateCyl //Copy from EngineClass
+
+    SUBMODULE: inputDepth
+    IMPORT: none
+    EXPORT: depth (real)
+    ASSERTION: Gets user input max depth of a submarine
+    ALGORITHM:
+        message (String) = NEW String( UIDOT + "Enter submarine max depth")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            TRY
+                INPUT depth (real)
+                IF validateDepth<-depth THEN
+                    error = ""
+                ELSE
+                    error = ( UIERR + "Error: Max depth must be between "
+                        + "-500.0 and 0.0 inclusive" + NEWLINE )
+                ENDIF
+            CATCH InputMismatchException
+                CLEAR INPUT BUFFER
+                error = ( UIERR + "Error: Max depth must be a real number +
+                    NEWLINE )
+            ENCATCH
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: validateDepth //Copy from SubClass
+
+    SUBMODULE: inputHull
+    IMPORT: none
+    EXPORT: hull (String)
+    ASSERTION: Gets user input hull material for a submarine
+    ALGORITHM:
+        message (String) = NEW String( UIDOT + "Enter submarine hull material")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            INPUT hull (String)
+            IF validateHull<-hull THEN
+                error = ""
+            ELSE
+                error = (UIERR + "Error: Hull must be Steel, Alloy or Titanium"
+                    + NEWLINE )
+            ENDIF
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: validateHull //Copy from SubClass
+
+    SUBMODULE: inputOrdnance
+    IMPORT: none
+    EXPORT: ordnance (String)
+    ASSERTION: Gets user input ordnance for a fighter jet
+    ALGORITHM:
+        message (String) = NEW String(UIDOT + "Enter Fighter Jet ordnance")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIERR )
+            INPUT ordnance (String)
+            IF validateOrdnance<-ordnance THEN
+                error = ""
+            ELSE
+                error = UIERR + "Error: Ordnance cannot be empty"
+            ENDIF
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: validateOrdnace //Copy from JetClass
+
+    SUBMODULE: inputWing
+    IMPORT: none
+    EXPORT: wing (real)
+    ASSERTION: Gets user input wingspan for a fighter jet
+    ALGORITHM: 
+        message (String) = NEW String(UIDOT + "Enter Fighter Jet wing span")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            TRY
+                INPUT wing (real)
+                IF validateWing<-wing THEN
+                    error = ""
+                ELSE
+                    error = ( UIERR + "Error: Wing span must be between 2.20 "
+                        + "and 25.6 inclusive" + NEWLINE )
+                ENDIF
+            CATCH InputMismatchExcpetion
+                CLEAR INPIUT BUFFER
+                error = ( UIERR + "Error: Wing span must be a real number"
+                    + NEWLINE )
+            ENDCATCH
+        WHILE !error.equals("")
+    ENDSUBMODULE
+
+    SUBMODULE: validateWing //Copy from JetClass
+
+    SUBMODULE: saveShips
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: Gets a file name and uses File.load to load ships into storage
+        from a file
+    ALGORITH:
+        message (String) = NEW String(UIDOT + "Enter file name to load ships"
+            + " from")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            INPUT fileName (String)
+            IF !fileName.equals("") THEN
+                error = ("")
+            ELSE
+                error = (UIERR + "Error: File Name cannot be emtpy" + NEWLINE)
+            ENDIF
+        WHILE !error.equals("")
+
+        TRY
+            File.save<-fileName,Ships
+                //Imports filename and ShipStorage obj
+            OUTPUT (UIDOT + "Ships loaded successfully" + NEWLINE)
+                CATCH InvalidArgumentException
+            OUTPUT (UIERR + "Error: " + EXCEPTIONMESSAGE + NEWLINE )
+        ENDCATCH
+    ENDSUBMODULE
+
+    SUBMODULE: viewShips
+    IMPORT: none
+    EXPORT: ships (String)
+    ASSERTION: Puts all ship's .toString's in a single String
+    ALGORITHM:
+        ships (String) = NEW String(UIDOT + "Ships in Storage:" + NEWLINE)
+        FOR i = 0 TO Ships.getSubNum<-none INC 1
+            ships = ships + UITAB + (Ships.getSub<-i).toString<-none
+        ENDFOR
+        FOR i = 0 TO Ships.getJetNum<-none INC 1
+            ships = ships + UITAB + (Ships.getJet<-i).toString<-none
+        ENDFOR
+        IF ships.equals(UIDOT + "Ships in Storage:" + NEWLINE) THEN
+            ships = UIDOT + "No ships in storage" + NEWLINE
+        ENDIF
+    ENDSUBMODULE
+
+    SUBMODULE: duplicatesString
+    IMPORT: none
+    EXPORT: dupes (String)
+    ASSERTION: Makes a long string of all ship duplicates using the
+        finDuplicates method in ShipStorage
+    ALGORITHM:
+        dupes (String) = NEW String(UIDOT + "Duplicate Ships:" + NEWLINE)
+        dupeArr (ARRAY OF String) = Ships.findDuplicates<-none
+        FOR i = 0 TO (dupeArr.LENGTH - 1) INC 1
+            IF dupeArr[i] != null THEN
+                dupes = ( dupes + UITAB + dupeArr[i] + NEWLINE )
+            ENDIF
+        ENDFOR
+        IF dupes.equals(UIDOT + "Duplicate Ships:" + NEWLINE) THEN
+            dupes = UIDOT + "No duplicates found"
+        ENDIF
+    ENDSUBMODULE
+
+    SUBMODULE: destination
+    IMPORT: none
+    EXPORT: fastest (String)
+    ASSERTION: Exports the ship that takes the shortest amount of time to
+        travel a distance using the destinationCheck method in ShipStorage
+    ALGORITHM:
+        message (String) = NEW String(UIDOT + "Enter distance to travel")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            TRY
+                INPUT distance (integer)
+                IF distance <= 0 THEN
+                    error = UIERR + "Error: Distance must be greater than 0"
+                        + NEWLINE
+                ELSE
+                    error = ""
+                ENDIF
+            CATCH InputMismatchException
+                CLEAR INPUT BUFFER
+                error = UIERR + "Error: Input must be an integer" + NEWLINE
+            ENDCATCH
+        WHILE !error.equals("")
+        fastest = new String( UIDOT + Ships.destinationCheck<-distance )
+    ENDSUBMODULE

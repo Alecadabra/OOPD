@@ -1,0 +1,84 @@
+CLASS: File
+ 
+    SUBMODULE: load
+    IMPORT: fileName (String), Ships (ShipStorage)
+    EXPORT: none
+    ASSERTION: Reads ships from file and adds them to storage
+    ALGORITHM:
+        TRY
+            READ FILE fileName
+            line (String) = READ LINE
+            WHILE (line != EOF)
+                lineArr (ARRAY OF String) = line.split(",")
+                shipType (character) = lineArr[0].toUpperCase().CHARAT<-0
+                IF ( (LENGTH OF lineArr == 7) AND
+                    ((shipType == 'S') OR (shipType == 'F')) AND
+                    (validateSerial<-lineArr[1]) AND
+                    (validateYear<-lineArr[2]) AND
+                    (validateCyl<-((Convert to integer)lineArr[3]))
+                    (validateFuel<-lineArr[4]) ) THEN
+                    IF ( (shipType == 'S') AND 
+                        (validateHull<-lineArr[4]) AND
+                        (validateDepth<-((Convert to real)lineArr[5])) ) THEN
+                        EngineClass eng = NEW EngineClass<-
+                            (Convert to integer)lineArr[3],lineArr[4]
+                        SubClass shipObj = NEW SubClass<-
+                            lineArr[1],(Convert to integer)lineArr[2],
+                            lineArr[5],(Convert to real)lineArr[6]
+                        Ships.addShip<-shipobj
+                    ELSE IF ( (shipType == 'F') AND
+                        (validateWing<-((Convert to real)lineArr[5])) AND
+                        (validateOrdnance<-lineArr[5]) ) THEN
+                        EngineClass eng = NEW EngineClass<-
+                            (Convert to integer)lineArr[3],lineArr[4]
+                        JetClass shipObj = NEW JetClass<-
+                            lineArr[1],(Convert to integer)lineArr[2],
+                            lineArr[5],(Convert to double)lineArr[6]
+                        Ships.addShip<-shipObj
+                    ELSE
+                        THROW EXCEPTION
+                    ENDIF
+                ELSE
+                    THROW EXCEPTION
+                ENDIF
+                line = READ LINE
+            ENDWHILE
+            CLOSE FILE
+        CATCH NumberFormatException
+            THROW EXCEPTION
+        CATCH FileNotFoundException
+            THROW IllegalArgumentException("File name not found")
+        CATCH IOException
+            THROW IllegalArgumentException("File reading error")
+        ENDCATCH
+    ENDSUBMODULE
+
+    SUBMODULE: save
+    IMPORT: fileName (String), Ships (ShipStorage)
+    EXPORT: none
+    ASSERTION: Saves all ships in storage to file
+    ALGORITHM:
+        TRY
+            MAKE FILE fileName
+            totShips (integer) = Ships.getSubNum + Ships.getJetNum
+            fileArr = NEW ARRAY OF STRING SIZE OF Ships.getTotal<-none
+            FOR i = 0 TO Ships.getSubNum<-none INC 1
+                PRINT LINE Ships.getSub<-i.toFileString<-none
+            ENDFOR
+            FOR i = 0 TO Ships.getJetNum INC 1
+                PRINT LINE Ships.getJet<-i.toFileString<-none
+            ENDFOR
+            CLOSE FILE
+        CATCH ArrayOutOfBounds
+            THROW EXCEPTION
+        ENDCATCH
+        CATCH IOException
+            IF STREAM IS NULL
+                TRY
+                    CLOSE FILE
+                CATCH IOException
+                ENDCATCH
+            ENDIF
+            THROW EXCEPTION
+        ENDCATCH
+    ENDSUBMODULE
