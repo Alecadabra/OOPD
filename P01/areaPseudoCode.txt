@@ -1,0 +1,31 @@
+OUTPUT "Enter circle diameter (cm)"
+INPUT cDiam (Integer)
+OUTPUT "Enter rectangle length (cm)"
+INPUT rLength (Real)
+OUTPUT "Enter rectangle width (cm)"
+INPUT rWidth (Real)
+OUTPUT "Enter triangle base length (mm)"
+INPUT tBase (Real)
+OUTPUT "Enter traingle height (mm)"
+INPUT tHeight (Real)
+
+cRadius(Real) := (Convert to Real)cDiam / 2.0
+cArea(Real) := cRadius * pi^2
+cAreaCmsqr(Int) := (Convert to Int)cArea MOD 10000
+cAreaMsqr(Int) := (Covert to Int)cArea / 10000
+cAreaMmsqr(Real) := (cArea - (Convert to Int)cArea) * 100
+
+rArea(Real) := rLength * rWidth
+rAreaCmsqr(Int) := (Convert to Int)rArea MOD 10000
+rAreaMsqr(Int) := (Convert to Int)rArea / 10000
+rAreaMmsqr(Real) := (rArea - (Convert to Int)rArea) * 100
+
+tArea(Real) := (tBase * tHeight) / 2.0
+tArea2(Real) := tArea / 100
+tAreaCmsqr(Int) := (Convert to Int)tArea2 MOD 10000
+tAreaMsqr(Int) := (Convert to Int)tArea2 / 10000
+tAreaMmsqr(Real) := (tArea2 - (Convert to Int)tArea2) * 100
+
+OUTPUT "The area of the circle is " + cAreaMsqr + "m^2, " + cAreaCmsqr + "cm^2, " + cAreaMmsqr + "mm^2."
+OUTPUT "The area of the rectangle is " + rAreaMsqr + "m^2, " + rAreaCmsqr + "cm^2, " + rAreaMmsqr + "mm^2."
+OUTPUT "The area of the triangle is " + tAreaMsqr + "m^2, " + tAreaCmsqr + "cm^2, " + tAreaMmsqr + "mm^2."
