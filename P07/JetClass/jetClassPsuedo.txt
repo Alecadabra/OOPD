@@ -1,0 +1,187 @@
+CLASS: JetClass
+
+CLASS FIELDS: serial (real)
+              year (integer)
+              ordnance (String)
+              wing (real)
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: address of new JetClass object
+    ASSERTION: creates object with valid classfields(?)
+    ALGORITHM: 
+        serial = 100.300
+        year = 1990
+        ordnance = "machine guns"
+        wing = 15.0
+
+Alternate:
+    IMPORT: inSerial (real), inYear (integer), inOrdnance (String),
+        inWing (real)
+    EXPORT: address of new JetClass object
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        IF ( validateSerial <- inSerial ) AND
+        ( validateYear <- inYear ) AND
+        ( validateOrdnance <- inOrdnance ) AND
+        ( validateWing <- inWing ) THEN
+            serial = inSerial
+            year = inYear
+            ordnance = inOrdnance
+            wing = inWing
+        ELSE
+            FAIL
+        END IF
+
+Copy:
+    IMPORT: inJet (JetClass)
+    EXPORT: adress of new JetClass object
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM: 
+        serial = inJet.getSerial<-none
+        year = inJet.getYear<-none
+        ordnance = inJet.getOrdnance<-none
+        wing = inJet.getWing<-none
+
+Clone:
+    SUMBODULE: clone
+    IMPORT: none
+    EXPORT: cloneJetClass (Jet)
+    ALGORITHM: 
+        cloneJetClass (Jet) = NEW JetClass <- THIS.serial,
+        THIS.year, THIS.ordnance, THIS.wing
+    END SUMBODULE
+
+Accesors:
+    SUBMODULE: getSerial
+    IMPORT: none
+    EXPORT: serial (real)
+    
+    SUBMODULE: getYear
+    IMPORT: none
+    EXPORT: year (integer)
+    
+    SUBMODULE: getOrdnance
+    IMPORT: none
+    EXPORT: ordnance (real)
+    
+    SUBMODULE: getWing
+    IMPORT: none
+    EXPORT: wing (String)
+    
+Equals:
+    SUBMOLDULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ALGORITHM: 
+        same = false
+        IF (inObj ISA JetClass) THEN
+            inJet = (Convert to JetClass)inObj
+            same = ( (Double.toString(serial)).equals((inObj.getSerial<-none))
+            AND (year == inObj.getYear<-none) AND
+            (ordnance.equals(inObj.getOrdnance)) AND
+            (Math.abs(wing - inObj.getWing) < 0.001) )
+        ENDIF
+    END SUBMODULE
+
+toString:
+    SUBMODULE: toString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM:
+        str = "The ship " + serial + " was comissioned in " + year + "ENGINE"
+        + "It is a fighter jet with a wing span of " + wing + 
+        " meters and equipped with " + ordnance + "."
+    END ALGORITHM
+
+toFileString:
+    SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM: 
+        str = ( "F," + serial + "," + "ENGINE" + "," + wing + "," + ordnance )
+    END SUBMODULE
+
+MUTATORS:
+    SUBMODULE: setSerial
+    IMPORT: inSerial
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateSerial<-inSerial ) THEN
+            serial = inSerial
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: setYear
+    IMPORT: inYear
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateYear<-inYear ) THEN
+            year = inYear
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: setOrdnance
+    IMPORT: inOrdnance
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateOrdnance<-inOrdnance ) THEN
+            ordnance = inOrdnance
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: setWing
+    IMPORT: inWing
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateWing<-inWing ) THEN
+            wing = inWing
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+PRIVATE SUBMODULES:
+    SUBMODULE: validateSerial
+    IMPORT: inSerial
+    EXPORT: valid (boolean)
+    ASSERTION: XXX.YYY, XXX (100-300 inc), YYY (001-999 inc)
+    ALGORITHM: 
+        valid = ( (Convert to integer)inSerial  >= 100 ) AND
+        ( (Convert to integer)inSerial <= 300 ) AND 
+        ( (Convert to integer)(inSerial * 1000000) MOD 1000  == 0 ) 
+    END SUBMODULE
+
+    SUBMODULE: validateYear
+    IMPORT: inYear
+    EXPORT: valid (boolean)
+    ASSERTION: integer between 1950 and 2022 inclusive
+    ALGORITHM: 
+        valid = ( inYear >= 1950 ) AND ( inYear <= 2022 )
+    END SUBMODULE
+
+    SUBMODULE: validateOrdnance
+    IMPORT: inOrdnance
+    EXPORT: valid (boolean)
+    ASSERTION: non-empty string
+    ALGORITHM: 
+        valid = ( inOrdnance NOT "" )
+    END SUBMODULE
+
+    SUBMODULE: validateWing
+    IMPORT: inWing
+    EXPORT: valid (boolean)
+    ASSERTION: real num (2.20 - 25.6 inc)
+    ALGORITHM: 
+        valid = ( ( inWing > 2.20 ) && ( inWing < 25.6 ) ) ||
+            ( Math.abs(inWing - 2.20) < 0.001 ) ||
+            ( Math.abs(inWing - 25.6) < 0.001 )
+    END SUBMODULE
+

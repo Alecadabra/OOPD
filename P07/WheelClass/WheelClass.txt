@@ -1,0 +1,177 @@
+CLASS: WheelClass
+
+PUBLIC CLASS CONSTANTS: MAG := "MAGNESIUM" 
+                        STEEL := "STEEL"
+CLASS FIELDS: size (String)
+              airPressure (real psi)
+              rimType (String)
+              manufacturer (String)
+
+CONSTRUCTORS:    
+Default:
+    IMPORT: none
+    EXPORT: address of new WheelClass object /*You are not required to say/understand this export*/
+    ASSERTION: 185/55 R15 with an airpressure of 29, mag alloy rims and no manufacturer is a valid default state
+    ALGORITHM:  size := "185/55 R15"
+                airPressure := 29
+                rimType := MAG
+                manufacturer := "" 
+
+Alternate #1:
+    IMPORT: inWidth (integer), inTyreDiam (integer), inRimDiam (integer), inPressure (real), inRim (String), inMake(String)
+    EXPORT: address of new WheelClass object /*You are not required to say/understand this export*/
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:         
+                IF (validateSize <- inWidth, inTyreDiam, inRimDiam) AND (validatePressure <- inPressure) AND (validateRim <- inRim) THEN
+                    setSize <- inWidth, inTyreDiam, inRimDiam 
+                    airPressure := inPressure
+                    rimType = inRim
+                    manufacturer = inMake
+                ELSE
+                    FAIL
+                END IF
+                
+Alternate #2:
+    IMPORT: inSize (String), inPressure (real), inRim (String), inMake(String)
+    EXPORT: address of new WheelClass object /*You are not required to say/understand this export*/
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:                     
+                IF (validatePressure <- inPressure) AND (validateRim <- inRim) THEN
+                    size := inSize
+                    airPressure := inPressure
+                    rimType := inrim
+                    manufacturer := inMake
+                ELSE
+                    FAIL
+                END IF
+
+Copy:
+    IMPORT: inWheel (WheelClass)
+    EXPORT: address of new WheelClass object /*You are not required to say/understand this export*/
+    ASSERTION: Creates an object with an identical object state as the import.
+    ALGORITHM:  size := inWheel.getSize <- none
+                airPressue := inWheel.getAirPressure <- none
+                rimType := inWheel.getRimType <- none
+                manufacturer := inWheel.getMaker <- none
+                
+MUTATORS:
+SUBMODULE: setSize
+    IMPORT: inSize (String)
+    EXPORT: none
+    ASSERTION: sets the size to inSize
+    ALGORITHM: size := inSize
+
+SUBMODULE: setSize
+    IMPORT: inWidth (integer), inTyreDiam (integer), inRimDiam (integer)
+    EXPORT: none
+    ASSERTION: sets the size if imports are valid and FAILS otherwise.
+    ALGORITHM:  IF (validateSize <- inWidth, inTyreDiam, inRimDiam) THE:N
+                    aspect := (Convert to Integer)(((Convert to Real)inTyreDiam / (Convert to Real)inWidth) * 100.0)
+                    size := inWidth + "/" + aspect + "R" + inRimDiam
+                    diameter := inRimDiam
+                ELSE
+                    FAIL
+                ENDIF
+
+SUBMODULE: setAirPressure
+    IMPORT: inAirPressure (real)
+    EXPORT: none
+    ASSERTION: sets the current airPressure if valid and FAILS otherwise.
+    ALGORITHM: IF (validatePressure <- inPressure) THEN
+                    airPressure := inPressure
+               ELSE
+                   FAIL
+               END IF
+
+SUBMODULE: setRimType
+    IMPORT: inRimType (String)
+    EXPORT: none
+    ASSERTION: sets the rim type if valid and FAILS otherwise.
+    ALGORITHM: IF (validateRim <- inRim) THEN
+                    rimType := inrim
+               ELSE
+                   FAIL
+               END IF
+
+SUBMODULE: setMake
+    IMPORT: inManufacturer (String)
+    EXPORT: none
+    ASSERTION: sets the manufacturer.
+    ALGORITHM: manufacturer := inMake
+
+ACCESSORS:    
+SUBMODULE: getSize
+    IMPORT: none
+    EXPORT: size
+    
+SUBMODULE: getAirPressure
+    IMPORT: none
+    EXPORT: airPressure
+    
+SUBMODULE: getRimType
+    IMPORT: none
+    EXPORT: rimType
+    
+SUBMODULE: getMake
+    IMPORT: none
+    EXPORT: manufacturer
+
+SUBMODULE: equals
+    IMPORT: inSize (String), inRimType (String)
+    EXPORT: same (boolean)
+    ASSERTION: Two wheels are interchangeable if they have the same size and rimType.
+    ALGORITHM:same := (size EQUALS inSize) AND (rimType EQUALS inRimType)
+    
+SUBMODULE: equals
+    IMPORT: inWidth (integer), inTyreDiam (integer), inRimDiam (integer), inRimType (String)
+    EXPORT: same (boolean)
+    ASSERTION: Two wheels are interchangeable if they have the same size and rimType.
+    ALGORITHM:  same := FALSE
+                IF (validateSize <- inWidth, inTyreDiam, inRimDiam) THEN
+                    aspect := (Convert to Integer)(((Convert to Real)inTyreDiam / (Convert to Real)inWidth) * 100.0)
+                    testSize := (inWidth + "/" + aspect + "R" + inRimDiam)
+                    same := (size EQUALS testSize) AND (rimType EQUALS inRimType)
+                ENDIF
+                
+
+SUBMODULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ASSERTION: Two wheels are interchangeable if they have the same size and rimType.
+    ALGORITHM: same := FALSE
+                IF (inObj ISA WheelClass) THEN
+                    inWheel:= (Convert to WheelClass)inObj
+                    same := (size EQUALS inWheel.getSize <- none) AND (rimType EQUALS inWheel.getRimType <- none)
+                ENDIF
+
+SUBMODULE toString
+    IMPORT: none
+    EXPORT: str
+    ASSERTION:
+    ALGORITHM: str = "size: " + size + " current air pressure is " + airPressure + " rim material " + rimType + " made by " + manufacturer
+                
+PRIVATE SUBMODULES:
+SUBMODULE: validateSize
+    IMPORT: inWidth (integer), inTyreDiam (integer), inRimDiam (integer)
+    EXPORT: valid (boolean)
+    ASSERTION: width is greater than  150, tyreDiam is less than width, tyreDiam and rimDiam must be positive 
+    ALGORITHM: valid := (inWidth > 150) AND (inTyreDiam < inWidth) AND (inTyreDiam > 0) AND (inRimDiam > 0) 
+
+SUBMODULE: validatePressure
+    IMPORT: inPressure (Real)
+    EXPORT: valid (boolean)
+    ASSERTION: pressure is between 0 and 42 (inclusive)
+    ALGORITHM: valid := (inPressure >= 0.0) AND (inPressure <= 42.0) 
+    
+SUBMODULE: validateRim
+    IMPORT: inRim (String)
+    EXPORT: valid (boolean)
+    ASSERTION: rim must be MAG or STEEL
+    ALGORITHM: valid := (inRim EQUALS MAG) OR (inRim EQUALS STEEL)
+    
+
+        
+        
+        
+        
+        

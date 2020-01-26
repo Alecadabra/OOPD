@@ -1,0 +1,133 @@
+CLASS: EngineClass
+
+CLASS CONSTANTS: BATT (String) = "BATTERY"
+                 DIES (String) = "DIESEL"
+                 BIO (String) = "BIO"
+
+CLASS FIELDS: fuel (String)
+              cyl (int)
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: address of new EngineClass object
+    ASSERTION: creates object with valid classfields(?)
+    ALGORITHM: 
+        fuel = BIO
+        cyl = 10
+
+Alternate:
+    IMPORT: inFuel (String), inCyl (int)
+    EXPORT: address of new EngineClass object
+    ASSERTION: Creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        IF ( validateFuel<-inFuel ) AND ( validateCyl<-inCyl ) THEN
+            fuel = inFuel
+            cyl = inCyl
+        ELSE
+            FAIL
+        END IF
+
+Copy:
+    IMPORT: inEngine (EngineClass)
+    EXPORT: adress of new EngineClass object
+    ASSERTION: Creates an object with an identical object state as the import
+    ALGORITHM: 
+        fuel = inEngine.getFuel<-none
+        cyl = inEngine.getCyl<-none
+
+Clone:
+    SUMBODULE: clone
+    IMPORT: none
+    EXPORT: cloneEngineClass (Engine)
+    ALGORITHM: 
+        cloneEngineClass (Engine) = NEW EngineClass <- THIS.fuel, THIS.cyl
+    END SUMBODULE
+
+Accesors:
+    SUBMODULE: getFuel
+    IMPORT: none
+    EXPORT: fuel (String)
+    
+    SUBMODULE: getCyl
+    IMPORT: none
+    EXPORT: cyl (integer)
+   
+Equals:
+    SUBMOLDULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ALGORITHM: 
+        same = false
+        IF (inObj ISA EngineClass) THEN
+            inEngine = (Convert to EngineClass)inObj
+            same = ( ((inEngine.getFuel()).equals(fuel)) AND
+                ( inEngine.getCyl == cyl ) )
+        ENDIF
+    END SUBMODULE
+
+toString:
+    SUBMODULE: toString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM:
+        IF fuel.equals(BAT) THEN
+            fuelString (String) = "a battery"
+        ELSE IF fuel.equals(DIES) THEN
+            fuelString = "diesel"
+        ELSE IF fuel.equals(BIO) THEN
+            fuelString = "bio fuel"
+        END IF
+        str = "its engine has " + cyl + " cylinders and runs on " + fuelString
+        + "."
+    END ALGORITHM
+
+toFileString:
+    SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM: 
+        str = ( cyl + "," + fuel )
+    END SUBMODULE
+
+MUTATORS:
+    SUBMODULE: setFuel
+    IMPORT: inFuel
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateFuel<-inFuel ) THEN
+            fuel = inFuel
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: setCyl
+    IMPORT: inCyl
+    EXPORT: none
+    ALGORITHM: 
+        IF ( validateCyl<-inCyl ) THEN
+            cyl = inCyl
+        ELSE
+            FAIL
+        ENDIF
+    END SUBMODULE
+
+PRIVATE SUBMODULES:
+    SUBMODULE: validateFuel
+    IMPORT: inFuel
+    EXPORT: valid (boolean)
+    ASSERTION: String either "BIO" or "BATTERY" or "DIESEL"
+    ALGORITHM:
+        valid = inFuel.equals(BIO) OR inFuel.equals(BATT) OR
+            inFuel.equals(DIES)
+    END SUBMODULE
+
+    SUBMODULE: validateCyl
+    IMPORT: inCyl
+    EXPORT: valid (boolean)
+    ASSERTION: integer between 2 and 20 inclusive
+    ALGORITHM: 
+        valid = ( inCyl >= 2 ) AND ( inCyl <= 20 )
+    END SUBMODULE
+
