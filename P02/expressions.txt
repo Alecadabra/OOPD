@@ -1,0 +1,20 @@
+static final TOL = 0.0001;
+String kirk, spock;
+double steve, tony;
+int luke, han, yoda;
+char jon, arya;
+
+(a) kirk.equals(captian)
+
+(b) (yoda % 2 == 0) && (han % 2 != 0)
+
+(c) (jon == S) && (arya == S)
+
+(d) spock CHARAT 0 == V
+
+(e) jon == arya
+
+(f) ABS (steve - tony) < TOL
+
+(g) luke > 0 || ((steve >= 25.0) && (steve <= 125.0))
+

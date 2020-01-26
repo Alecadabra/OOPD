@@ -1,0 +1,42 @@
+OUTPUT "Choose shape: Circle - 1, Rectangle - 2, Triangle - 3. Or exit with 4."
+INPUT shape (Int)
+
+CASE shape
+    1: shapeName (String) := "circle"
+       OUTPUT "Enter circle diameter (cm)"
+       INPUT diam (Integer)
+       radius(Real) := (Convert to Real)diam / 2.0
+       area(Real) := radius^2.0 * PI
+       areaCmsqr(Int) := (Convert to Int)area MOD 10000
+       areaMsqr(Int) := (Covert to Int)area / 10000
+       areaMmsqr(Real) := (area - (Convert to Int)area) * 100
+
+    2: shapename (String) := "rectangle"
+       OUTPUT "Enter rectangle length (cm)."
+       INPUT length (Real)
+       OUTPUT "Enter rectangle width (cm)."
+       INPUT width (Real)
+       area(Real) := length * width
+       areaCmsqr(Int) := (Convert to Int)area MOD 10000
+       areaMsqr(Int) := (Convert to Int)area / 10000
+       areaMmsqr(Real) := (area - (Convert to Int)area) * 100
+
+    3: shapeName (String) := "triangle"
+       OUTPUT "Enter triangle base length (mm)."
+       INPUT base (Real)
+       OUTPUT "Enter triangle height (mm)."
+       INPUT height (Real)
+       area(Real) := (base * height) / 2.0
+       area2(Real) := area / 100.0
+       areaCmsqr(Int) := (Convert to Int)area2 MOD 10000
+       areaMsqr(Int) := (Convert to Int)area2 / 10000
+       areaMmsqr(Real) := (area2 - (Convert to Int)area2) * 100
+
+    4: OUTPUT "Goodbye"
+
+    OTHERWISE: OUTPUT "Invalid answer"
+ENDCASE
+
+IF (( shape == 1 ) || ( shape == 2 ) || ( shape == 3 ))
+    OUTPUT "The area of the " + shapeName + "is " + areaMsqr + "m^2, " + areaCmsqr + "cm^2, " + areaMmsqr + "mm^2."
+ENDIF

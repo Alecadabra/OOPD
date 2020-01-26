@@ -1,0 +1,31 @@
+OUTPUT "Enter unit total"
+INPUT unitTotal(Real)
+
+decimal(Int) := ((Int)(unitTotal * 10.0)) MOD 10;
+mark(Int) = (Int)unitTotal
+
+IF decimal > 5
+    mark = mark + 1
+ENDIF
+
+IF mark < 0
+    grade(String) := ("Invalid")
+ELSE IF ( mark < 50)
+    grade := ("F-" + mark)
+ELSE IF ( mark < 60)
+    grade := ("P-5")
+ELSE IF ( mark < 70)
+    grade := ("C-6")
+ELSE IF ( mark < 80)
+    grade := ("D-7")
+ELSE IF ( mark < 90)
+    grade := ("HD-8")
+ELSE IF ( mark < 100)
+    grade := ("HD-9")
+ELSE IF ( mark == 100)
+    grade := ("HD-10")
+ELSE IF ( mark > 100)
+    grade := ("Invalid")
+END IF
+
+OUTPUT grade

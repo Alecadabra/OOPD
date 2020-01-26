@@ -1,0 +1,16 @@
+OUTPUT "Input 1st number"
+INPUT numOne (Int)
+OUTPUT "Input 2nd number"
+INPUT numTwo (Int)
+
+IF numTwo != 0
+    IF (numOne % numTwo) == 0
+        divisible (Char) = "Divisible"
+    ELSE
+        divisible = "Not Divisible"
+    ENDIF
+ELSE
+    divisible = "Not Divisible"
+ENDIF
+
+OUTPUT divisible
