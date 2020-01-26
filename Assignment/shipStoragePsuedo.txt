@@ -1,0 +1,137 @@
+Author: Alec Maughan
+Purpose: Ship storage system, stores ships in seperate arrays
+Date: 9/5/19
+
+CLASS: ShipStorage
+
+    CLASS CONSTANTS:
+        MAXHIPS (integereger) := 30
+
+    PRIVATE CLASS FIELDS:
+        shipArr (ARRAY OF ShipClass) //Contains all ships
+        shipNum (integer) //Index to use when adding a ship, also 
+            //equal to the no. of ships + 1
+
+    CONSTRUCTORS:
+    DEFAULT CONSTRUCTOR
+    IMPORT: none
+    EXPORT: memory address of new ShipStorage object
+    ASSERTION: initialises array and shipNum
+    ALGORITHM:
+        shipArr := NEW ARRAY OF ShipClass, SIZE OF MAXSHIPS
+        shipNum := 0
+    END SUBMODULE
+    END CONSTRUCTORS
+
+    SUBMODULE: addShip
+    IMPORT: inShip (Shipclass)
+    EXPORT: none
+    ASSERTION: adds shipclass object to shipArr if there is space in the array
+        and the object is not NULL
+    ALGORITHM:
+       IF inShip NOT NULL AND ( shipNum < MAXSHIPS ) THEN
+            shipArr[ shipNum ] := inShip
+            shipNum := shipNum + 1
+        ELSE IF inShip EQUALS NULL THEN
+            FAIL (IllegalArgument) (message: "Invalid Ship" )
+        ELSE IF shipNum >= MAXSHIPS THEN
+            FAIL (IllegalArgument) (message: "ship storage: Number of " +
+                "Ships has reached the maximum capacity (" + MAXSHIPS + ")" )
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: destinationCheck
+    IMPORT: dist (integer)
+    EXPORT: outString (String)
+    ASSERTION: Loops through both arrays and uses clacTravel to find the 
+        ship that travels dist in the shortest amount of time and
+        outputs String of fastest ship
+    ALGORITHM:
+        hours (real) := 0.0 //Hours taken to travel dist
+        outString (String) := "" //Output string
+
+        IF shipArr[0] NOT NULL THEN
+            hours := (
+                Math.round<--( 
+                    shipArr[0].calcTravel<--dist * 100.0 ) / 100.0 )
+                //Sets the 1st submarine to the fastest and round to 2dp
+            outString := ( "The submarine " + shipArr[0].getSerial<--none +
+                " is the fastest at " + hours + " hours." )
+            FOR i := 1 TO ( shipNum - 1 ) INC 1
+                IF shipArr[i].calcTravel<--dist < hours THEN
+                    hours := ( Math.round<--(
+                        shipArr[i].calcTravel<--dist * 100.0 ) / 100.0 )
+                        //Sets the new fastest sub and rounds to 2dp
+                    outString := ( "The ship " + shipArr[i].getSerial<--none +
+                        " is the fastest at " + hours + " hours." )
+                ENDIF
+            ENDFOR
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: findDuplicates
+    IMPORT: none
+    EXPORT: dupeArr (ShipClass[])
+    ASSERTION: Finds duplicate ships and stores their .toString's in an array
+    ALGORITHM:
+        count (integer) := 0 //Count for index of dupeArr
+        dupeArr := NEW ARRAY OF ShipClass SIZE OF shipNum
+
+        FOR i := 0 TO shipNum INC 1
+            FOR j := i + 1 TO shipNum INC 1
+                IF ( i NOT j ) AND ( shipArr[i].equals<--shipArr[j] ) THEN
+                    dupeArr[count] := shipArr[i]
+                    count := count + 1
+                ENDIF
+            ENDFOR
+        ENDFOR
+    END SUBMODULE
+
+    ACCESSORS:
+    SUBMODULE: getShip
+    IMPORT: index (integer)
+    EXPORT: outShip
+    ASSERTION: Returns clone of Ship at array index
+    ALGORITHM:
+        IF shipArr[index] EQUALS NULL THEN
+            FAIL (IllegalArgument) (message: "No ship at index " + index )
+        ENDIF
+
+        outShip (ShipClass) := shipArr[index].clone<--none
+    END SUBMODULE
+
+    SUBMODULE: getShipNum
+    IMPORT: none
+    EXPORT: shipNum (integer)
+    ALGORITHM: none
+    END SUBMODULE
+
+    SUBMODULE: getSlots
+    IMPORT: none
+    EXPORT: slots (integer)
+    ASSERTION: Returns number of ship slots left in array
+        slots := MAXSHIPS - shipNum
+    END SUBMODULE
+    END ACCESSORS
+
+    SUBMODULE: equals
+    IMPORT: inStorage
+    EXPORT: equal (boolean)
+    ASSERTION: Returns true if ship storage objects are equal
+    ALGORITHM:
+        equal (boolean) := true
+        i (integer) := 0
+        IF shipNum NOT inStorage.getShipNum<--none THEN
+            equal := false
+        ENDIF
+        WHILE equal AND i < shipArr.LENGTH
+            IF inStorage.getShip<--i EQUALS NULL THEN
+                equal := false
+            ELSE
+                equal := shipArr[i].equals<--( inStorage.getShip<--i )
+                i = i + 1;
+            ENDIF
+        ENDWHILE
+    END SUBMODULE
+
+END CLASS

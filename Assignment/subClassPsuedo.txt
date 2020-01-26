@@ -1,0 +1,207 @@
+CLASS: SubClass inherits from ShipClass
+
+    CLASS CONSTANTS:
+        STEEL (String) := "STEEL"
+        ALL (String) := "ALLOY"
+        TITAN (String) := "TITANIUM"
+
+    PRIVATE CLASS FIELDS:
+        depth (real) //Submarine max depth
+        hull (String) //Submarine hull material
+
+    CONSTRUCTORS:
+    DEFAULT CONSTRUCTOR
+    IMPORT: none
+    EXPORT: memory address of new SubClass object
+    ASSERTION: serial number 150.500, manufacturing year 2000, default
+        engine, hull material ALLOY, max depth -250.0
+    ALGORITHM:
+        SUPER DEFAULT CONSTRUCTOR
+        hull := CONSTRUCT hull (String) USING copy<--ALL
+        depth := -250.0
+    END SUBMODULE
+
+    ALTERNATE CONSTRUCTOR
+    IMPORT: inSerial (String), inYear (int), inEng (EngineClass),
+        inHull (String), inDepth (real)
+    EXPORT: adress of new SubClass object
+    ASSERTION: creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        SUPER ALTERNATE CONSTRUCTOR<--inSerial, inYear, inEng
+        setHull<--CONSTRUCT outHull (String) USING copy<--inHull
+        setDepth<--inDepth
+    END SUBMODULE
+
+    COPY CONSTRUCTOR
+    IMPORT: inSub (SubClass)
+    EXPORT: adress of new SubClass object
+    ASSERTION: Creates new object with identical object state as import
+    ALGORITHM:
+        SUPER COPY CONSTRUCTOR<--inSub
+        hull := CONSTRUCT outHull USING copy<--inSub.getHull<--none
+        depth := inSub.getDepth<--none
+    END SUBMODULE
+    END CONSTRUCTORS
+
+    SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneSubClass (SubClass)
+    ASSERTION: Creates new object with identical object state as import
+        using this
+    ALGORITHM:
+        CONSTRUCT cloneSubClass USING copy<--this
+    END SUBMODULE
+
+    ACCESSORS
+    SUBMODULE: getHull
+    IMPORT: none
+    EXPORT: CONSTRUCT outHull (String) USING copy<--hull
+    ALGORITHM: none
+    END SUBMODULE
+
+    SUBMODULE: getDepth
+    IMPORT: none
+    EXPORT: depth (real)
+    END ACCESSORS
+
+    SUBMODULE: equals
+    IMPORT: inObj (object)
+    EXPORT: same (boolean)
+    ASSERTION: subs are equals if they share serial, year, engine, hull 
+        and depth
+    ALGORITHM:
+        same (boolean) := false
+        IF inObj IF SubClass THEN
+            inSub (SubClass) := (Convert to SubClass)inObj
+            CONSTRUCT upHull (String) USING copy<--hull.toUpperCase<--none
+            CONSTRUCT upInHull (String) USING 
+                copy<--inSub.getHull.toUpperCase<--none
+
+            same := ( super.equals<--inSub ) AND
+                ( upHull.equals<--upInHull ) AND
+                ( ( Math.abs<--( depth - inSub.getDepth<--none ) ) < 0.001 )
+        END IF
+    END SUBMODULE
+
+    SUBMODULE: toString
+    IMPORT: none
+    EXPORT: outString (String)
+    ASSERTION: Exports a string containing all classfields in a human
+        readable format
+    ALGORITHM:
+        outString := "The ship " + super.getSerial<--none + 
+            " was comissioned in " + super.getYear<--none + ", " + 
+            super.getEng<--none.toString<--none +
+            " It is a submarine with a " + hull +
+            " hull and a max depth of " + depth + " meters."
+    END SUBMODULE
+
+    SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: outString (String)
+    ASSERTION: Exports a string containing all classfields in a format
+        for fileIO
+    ALGORITHM:
+        outString := "S," + super.getSerial<--none + "," + 
+            super.getYear<--none + "," + 
+            super.getEng<--none.toFileString<--none + "," + hull + "," + 
+            depth
+    END SUBMODULE
+
+    SUBMODULE: calcTravel
+    IMPORT: inDistance (int)
+    EXPORT: hours (real)
+    ASSERTION: Finds number of hours taken to travel distance
+    ALGORITHM:
+        distance (real) := (Convert to real)inDistance
+        cylinders (real) := 
+            (Convert to real)( super.getEng<--none.getCyl<--none )
+
+        hours =( distance / cylinders ) * ( 1 / ( 10 + ( depth * -1 ) ) )
+    END SUBMODULE
+
+    MUTATORS
+    SUBMODULE: setDepth
+    IMPORT: inDepth (real)
+    EXPORT: none
+    ALGORITHM:
+        IF NOT validateDepth<--inDepth THEN
+            //If import is not a valid max depth
+            FAIL (IllegalArgument) (message: "max depth \"" + inDepth + 
+                "\": " +
+                "Max depth must be between -500.0 and 0.0 inclusive" )
+        END IF
+
+        depth := inDepth
+    END SUBMODULE
+
+    SUBMODULE: setDepth
+    IMPORT: inString (String)
+    EXPORT: none
+    ASSERTION: Sets the max depth by parsing a String
+    ALGORITHM:
+        inDepth (real)
+        IF inString.equals<--"" THEN
+            //If import is empty
+            FAIL (IllegalArgument) (message:
+                "max depth \"\": Max depth cannot be empty" )
+        ENDIF
+        TRY
+            inDepth := (Parse to real)inString
+        ENDTRY
+        CATCH NumberFormat
+            //If import is not a real
+            FAIL (IllegalArgument) (message: "max depth \"" + inString + 
+                "\": " + "Max depth must be a real number" )
+        ENDCATCH
+        IF NOT validateDepth<--inDepth THEN
+            //If import is not a valid max depth
+            FAIL (IllegalArgument) (message: "max depth \"" + inString + 
+                "\": " + "Max depth must be between -500.0 and 0.0 inclusive" 
+                )
+        ENDIF
+
+        depth := inDepth
+    END SUBMODULE
+
+    SUBMODULE: setHull
+    IMPORT: inHull (String)
+    EXPORT: none
+    ALGORITHM:
+        IF inHull.equals<--"" THEN
+            //If import is empty
+            FAIL (IllegalArgument) (message: "hull material \"" + inHull + 
+                "\": " + "Hull material cannot be empty" )
+        ENDIF
+        ELSE IF NOT validateHull<--inHull THEN
+            //If import is not a valid hull material
+            FAIL (IllegalArgument) (message: "hull material \"" + inHull + 
+                "\": " + "Hull material must be Steel, Alloy, or Titanium. " + 
+                "Casing does not matter" )
+        ENDIF
+
+        hull := inHull
+    END SUBMODULE
+
+    PRIVATE VALIDATION SUBMODULES:
+    SUBMODULE: validateDepth
+    IMPORT: inDepth
+    EXPORT: valid (boolean)
+    ASSERTION: real num (-500 to 0.0 inclusive)
+    ALGORITHM:
+        valid := ( (inDepth > -500.0) AND (inDepth < 0.1) ) OR
+            (Math.abs<--(inDepth + 500.0) < 0.001 ) OR
+            (Math.abs<--(inDepth - 0.0 ) < 0.001 )
+    END SUBMODULE
+
+    SUBMODULE: validateHull
+    IMPORT: inHull (String)
+    EXPORT: valid (boolean)
+    ASSERTION: string either "STEEL" or "ALLOY" or "TITANIUM"
+    ALGORITHM:
+        CONSTRUCT upHull (String) USING copy<--inHull.toUpperCase<--none
+        valid := ( upHull.equals<--STEEL OR upHull.equals<--ALL OR
+            upHull.equals<--TITAN )
+    END SUBMODULE
+
+END CLASS

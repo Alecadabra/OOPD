@@ -1,0 +1,210 @@
+CLASS: ShipClass
+
+    PRIVATE CLASS FIELDS:
+        serial (String) //Ship serial number
+        year (integer) //Ship manufacturing year
+        Eng (EngineClass) //Ship engine
+
+    CONSTRUCTORS:
+    DEFAULT CONSTRUCTOR
+    IMPORT: none
+    EXPORT: memory adress of new ShipClass object
+    ASSERTION: Constructs shipclass object using valid state
+    ALGORITHM:
+        super default constructor
+        serial := "150.500"
+        year := 2000
+        CONSTRUCT Eng USING default
+    END SUBMODULE
+
+    ALTERNATE CONSTRUCTOR
+    IMPORT: inSerial (String), inYear (int), inEng (EngineClass)
+    EXPORT: memory adress of new ShipClass object
+    ASSERTION: Constructs shipclass object using imported state
+    ALGORITHM:
+        super default constructor
+        setSerial<--CONSTRUCT outSerial USING inSerial
+        setYear<--inYear
+        setEng<--CONSTRUCT outEng USING inEng
+    END SUBMODULE
+
+    COPY CONSTRUCTOR
+    IMPORT: inShip (ShipClass)
+    EXPORT: memory adress of new ShipClass object
+    ASSERTION: Constructs shipclass object using state of imported object
+    ALGORITHM:
+        setSerial<--CONSTRUCT outSerial USING inShip.getSerial<--none
+        setYear<--inShip.getYear<--none
+        setEng<--CONSTRUCT outEng USING inShip.getEng<--none
+    END SUBMODULE
+    END CONSTRUCTORS
+
+    ABSTRACT SUBMODULE clone
+    IMPORT: ShipClass object
+    EXPORT: Cloned ShipClass object using this
+    END SUBMODULE
+
+    ACCESSORS:
+    SUBMODULE: getSerial
+    IMPORT: none
+    EXPORT: COPY OF serial (String)
+    ALGORITHM: none
+    END SUBMODULE
+
+    SUBMODULE: getYear
+    IMPORT: none
+    EXPORT: year (integer)
+    ALGORITHM: none
+    END SUBMODULE
+
+    SUBMODULE: getEng
+    IMPORT: none
+    EXPORT: COPY OF Eng (EngineClass)
+    ALGORITHM: none
+    END SUBMODULE
+    END ACCESSORS
+
+    SETTERS:
+    SUBMODULE: setSerial
+    IMPORT: inSerial (String)
+    EXPORT: none
+    ASSERTION: Sets serial number of object if import is valid and FAILS
+        otherwise
+    ALGORITHM:
+        IF inSerial.equals<--"" THEN
+            //If import is empty
+            FAIL (IllegalArgument) (message: "serial number \"" + inSerial + 
+                "\": Serial number cannot be empty" )
+        ENDIF
+        IF NOT validateSerial<--inSerial THEN
+            //If import is not a valid serial number
+            FAIL (IllegalArgument) (message: "serial number \"" + inSerial + 
+                "\": Serial number must " +
+                "start with 3 digits between 001 and 300 inclusive and " +
+                "end in three digits between 001 and 999 inclusive (###.###)"
+                )
+        ENDIF
+
+        serial := inSerial
+    END SUBMODULE
+
+    SUBMODULE: setYear
+    IMPORT: inYear (int)
+    EXPORT: none
+    ASSERTION: Sets manufacturing year of object if import is valid and FAILS
+        otherwise
+    ALGORITHM:
+        IF NOT validateYear<--inYear THEN
+            //If import is not a valid manufacturing year
+            FAIL (IllegalArgument) (message: "manufacturing year \"" + 
+                inYear + "\": " +
+                "Manufacturing year must be between 1950 and 2022 inclusive"
+                )
+        ENDIF
+
+        year := inYear
+    END SUBMODULE
+
+    SUBMODULE: setYear
+    IMPORT: inYear (String)
+    EXPORT: none
+    ASSERTION: Sets maufacturing year of object from a parsed String if
+        imports are valid and FAILS otherwise
+    ALGORITHM:
+        inYear (integer)
+        IF inString.equals<--"" THEN
+            //If import is empty
+            FAIL (IllegalArgument) (message: "manufacturing year \"" + 
+                inString + "\": Manufacturing year cannot be empty" )
+        ENDIF
+        TRY
+            inYear := (Parse to integer)inString
+        CATCH NumberFormat
+            //If import is not an integer
+            FAIL (IllegalArgument) (message: "manufacturing year \"" + 
+                inString + "\": Manufacturing year must be an integer" )
+        ENDCATCH
+        IF NOT validateYear<--inYear THEN
+            //If import is not a valid manufacturing year
+            FAIL (IllegalArgument) (message: "maufacturing year \"" + 
+                inString + "\": " +
+                "Manufacturing year must be between 1950 and 2022 inclusive" )
+        ENDIF
+
+        year := inYear
+    END SUBMODULE
+
+    SUBMODULE: setEng
+    IMPORT: inEng (EngineClass)
+    EXPORT: none
+    ASSERTION: Sets the engine of object
+    ALGORITHM:
+        CONSTRUCT Eng USING (Convert to EngineClass)inEng
+    END SUBMODULE
+    END SETTERS
+
+    SUBMODULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ASSERTION: Checks the equality of two ShipClass objects
+    ALGORITHM:
+        same (boolean) := false
+        IF inObj ISA ShipClass THEN
+            inShip (ShipClass) := (Convert to ShipClass)inObj
+            same := ( serial.equals<--inShip.getSerial<--none AND
+                year EQUALS inShip.getYear<--none )
+        END IF
+    END SUBMODULE
+
+    ABSTRACT SUBMODULE toString
+    IMPORT: none
+    EXPORT: String
+    END SUBMODULE
+
+    ABSTRACT SUBMODULE toFileString
+    IMPORT: none
+    EXPORT: String
+    END SUBMODULE
+
+    ABSTRACT SUBMODULE calcTravel
+    IMPORT: inDistance (integer)
+    EXPORT: real
+    END SUBMODULE
+
+    PRIVATE VALIDATION:
+    SUBMODULE: validateSerial
+    IMPORT: inSerial (String)
+    EXPORT: valid (boolean)
+    ASSERTION: Checks the validity of the import as a serial number
+    ALGORITHM:
+        valid (boolean) := false
+        TRY
+            serialParts (ARRAY OF String) := inSerial.split<--"\\."
+            valid := ( ( serialParts[0].length<--none EQUALS 3 )
+                    //Check there are 3 digits in first part
+                AND ( (Parse to integer)( serialParts[0] ) >= 100 )
+                    //Check that first part is greater than 100 inc.
+                AND ( (Parse to integer)( serialParts[0] ) <= 300 )
+                    //Check that first part is less than 300 inc.
+                AND ( serialParts[1].length<--none EQUALS 3 )
+                    //Check to make sure there are 3 digits in 2nd part
+                AND NOT ( serialParts[1].equals<--"000" ) )
+                    //Check to see first 3 digits are not 000 in 2nd part
+        CATCH ArrayOutOfBounds
+            valid := false
+        END CATCH
+        CATCH NumberFormat
+            valid := false
+        ENDCATCH
+    END SUBMODULE
+
+    SUBMODULE: validateYear
+    IMPORT: inYear (int)
+    EXPORT: valid (boolean)
+    ASSERTION: Checks the validity of the import as a manufacturing year
+    ALGORITHM:
+        valid := ( inYear >= 1950 ) AND ( inYear <= 2022 )
+    END SUBMODULE
+    END PRIVATE VALIDATION
+
+END CLASS
