@@ -1,0 +1,109 @@
+DO
+
+    message (String) := "Choose shape: Circle - 1, Rectangle - 2, Triangle - 3. Or exit with 4."
+    DO
+        menu (Integer) = inputInt( message )
+    WHILE ( menu < 1 ) || ( menu > 4 )
+
+    CASE shape
+        1:
+            circle()
+        2:
+            rectangle()
+        3:
+            triangle()
+        4:
+            OUTPUT "Goodbye"
+        DEFAULT:
+            OUTPUT "Invalid answer"
+    ENDCASE
+
+WHILE ( shape != 4)
+
+SUBMODULE: circle
+IMPORT: none
+EXPORT: none
+ALGORITHM:
+    message (String) := "Enter circle diameter (cm)."
+    dim1 (Int) = inputInt( message ) // circle diameter
+    area = circleCalc( dim1 )
+    output( "circle", area )
+END SUBMODULE
+
+SUBMODULE: rectangle
+IMPORT: none
+EXPORT: none
+ALGORITHM:
+        message (String) := "Enter rectangle length (cm)."
+        dim1 (Real) = inputReal( message ) // rectangle length
+        message := "Enter rectangle width (cm)."
+        dim2 (Real) = inputReal( message ) // rectangle width
+        area = rectangleCalc( dim1, dim2 )
+        output( "rectangle", area )
+END SUBMODULE
+
+SUBMODULE: triangle
+IMPORT: none
+EXPORT: none
+ALGORITHM:
+        message := "Enter triangle base length (mm)."
+        dim1 = inputReal( message ) // triangle base
+        message := "Enter triangle height (mm)."
+        dim2 = inputReal( message ) // triangle height
+        area = triangleCalc( dim1, dim2 )
+        output( "triangle", area )
+END SUBMODULE
+
+SUBMODULE: circleCalc
+IMPORT: diam (Integer)
+EXPORT: area (Real)
+ALGORITHM:
+    radius(Real) := (Convert to Real)diam / 2.0
+    area(Real) := radius^2.0 * PI
+END SUBMODULE
+
+SUBMODULE: rectangleCalc
+IMPORT: length (Real), width (Real)
+EXPORT: area (Real)
+ALGORITHM:
+    area(Real) := length * width
+END SUBMODULE
+
+SUBMODULE: triangleCalc
+IMPORT: base (Real), height (Real)
+EXPORT: area (Real)
+ALGORITHM:
+    area(Real) := ((base * height) / 2.0) / 100
+END SUBMODULE
+
+SUBMODULE: inputInt
+IMPORT: message (String)
+EXPORT: output (Integer)
+ALGORITHM:
+    DO
+        OUTPUT message
+        message := "Error: Invalid input" + message
+        INPUT output
+    WHILE ( output <= 0)
+END SUBMODULE
+
+SUBMODULE: inputReal
+IMPORT: message (String)
+EXPORT: output (Real)
+ALGORITHM:
+    DO
+        OUTPUT message
+        message := "Error: Invalid input" + message
+        INPUT output
+    WHILE ( output <= 0)
+END SUBMODULE
+
+SUBMODULE: output
+IMPORT: shape (String), area (Real)
+EXPORT: None
+    cm (Integer) := (Convert to Int)area MOD 10000
+    m (Integer) := (Covert to Int)area DIV 10000
+    mm (Real) := (area - (Convert to Int)area) * 100
+    OUTPUT "The area of the " + shape + "is " + m + "m^2, " + cm + "cm^2, " +
+    mm + "mm^2."
+END SUBMODULE
