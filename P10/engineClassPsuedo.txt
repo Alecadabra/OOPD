@@ -1,0 +1,200 @@
+CLASS: EngineClass  
+
+    CLASS CONSTANTS:
+        BATT (String) := "BATTERY"
+        DIES (String) := "DIESEL"
+        BIO (String) := "BIO"
+
+    PRIVATE CLASS FIELDS:
+        cyl (integer) //Engine number of cylinders
+        fuel (String) //Engine fuel type
+
+    CONSTRUCTORS
+    DEFAULT CONSTRUCTOR
+    IMPORT: none
+    EXPORT: memory address of new EngineClass object
+    ASSERTION: cyl := 10, fuel := "BIO"
+    ALGORITHM:
+        cyl := 10
+        fuel := CONSTRUCT fuel USING BATT
+    END SUBMODULE
+
+    ALTERNATE CONSTRUCTOR
+    IMPORT: inCyl (integer), inFuel (String)
+    EXPORT: adress of new EngineClass object
+    ASSERTION: creates the object if the imports are valid and FAILS otherwise
+    ALGORITHM:
+        setCyl<--inCyl
+        setFuel<--CONSTRUCT outFuel USING inFuel
+    END SUBMODULE
+
+    COPY CONSTRUCTOR
+    IMPORT: inEngine (EngineClass)
+    EXPORT: adress of new EngineClass object
+    ASSERTION: Creates new object with identical object state as the import
+    ALGORITHM:
+        cyl := inEngine.getCyl<--none
+        fuel := inEngine.getFuel<--none
+    END SUBMODULE
+    END CONSTRUCTORS
+
+    SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneEngineClass (EngineClass)
+    ASSERTION: Creates a copy of the imported engine using this
+    ALGORITHM:
+        CONSTRUCT cloneEngineClass (EngineClass) USING copy<--this
+    END SUBMODULE
+
+    ACCESSORS:
+    SUBMODULE: getCyl
+    IMPORT: none
+    EXPORT: cyl (integer)
+    ALGORITHM: none
+    END SUBMODULE
+
+    SUBMODULE: getFuel
+    IMPORT: none
+    EXPORT: CONSTRUCT outFuel (String) USING copy<-fuel
+
+    SUBMODULE: getFuelString
+    IMPORT: none
+    EXPORT: fuelString
+    ASSERTION: Exports a more readable String describing fuel type for 
+        user output
+    ALGORITHM:
+        fuelString (String)
+        IF fuel.toUpperCase.equals<--BATT THEN
+            fuelString := "a battery"
+        ELSE IF fuel.toUpperCase().equals<--DIES THEN
+            fuelString := "diesel fuel"
+        ELSE IF fuel.toUpperCase().equals<--BIO THEN
+            fuelString := "bio fuel"
+        ELSE
+            FAIL (IllegalArgument) (message: "Invalid fuel type")
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: equals
+    IMPORT: inObj (object)
+    EXPORT: same (boolean)
+    ASSERTION: engines are equals if they share the same fuel and number of 
+        cylinders
+    ALGORITHM:
+        same (boolean) := false
+        IF inObj ISA EngineClass THEN
+            inEngine (EngineClass) := (Convert to EngineClass)inObj
+            same := cyl EQUALS inEngine.getCyl<--none AND 
+                fuel.equals<--inEngine.getFuel<--none
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: toString
+    IMPORT: none
+    EXPORT: outString (String)
+    ASSERTION: Exports human readable String of engine state for use with
+        .toStrings of SubClass and JetClass
+    ALGORITHM:
+        outString := "its engine has " + cyl + " cylinders and runs on " +
+            getFuelString<--none + "."
+    END SUBMODULE
+
+    SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: outString (String)
+    ASSERTION: Exports String of engine state for file reading/writing
+    ALGORITHM:
+        outString := cyl + "," + fuel
+    END SUBMODULE
+
+    MUTATORS
+    SUBMODULE: setCyl
+    IMPORT: inCyl (int)
+    EXPORT: none
+    ASSERTION: Sets the number of cylinders of the current object if imports 
+        are valid and FAILS otherwise
+    ALGORITHM:
+        IF NOT validateCyl<--inCyl THEN
+            //If import is not a valid number of cylinders
+            FAIL (IllegalArgument) (message: "number of cylinders \"" + 
+                inCyl + "\": " + 
+                "Number of cylinders must be between 2 and 20 inclusive" )
+        ENDIF
+
+        cyl := inCyl
+    END SUBMODULE
+
+    SUBMODULE: setCyl
+    IMPORT: inCyl (int)
+    EXPORT: none
+    ASSERTION: Sets the number of cylinders of current object if imports
+        are valid and FAILS otherwise
+    ALGORITHM:
+        inCyl (integer)
+        IF inString.equals<--"" THEN
+            //If import is empty
+            FAIL (IllegalArgument) (message: "number of cylinders \"\": " + 
+                "Number of cylinders cannot be empty" )
+        ENDIF
+        TRY
+            inCyl := (Parse to integer)inString
+        ENDTRY
+        CATCH NumberFormat
+            //If import is not an integer
+            FAIL (IllegalArgument) (message: "number of cylinders \"" + 
+                inString + "\": " + 
+                "Number of cylinders must be an integer" )
+        ENDCATCH
+        IF NOT validateCyl<--inCyl THEN
+            //If import is not a valid number of cylinders
+            FAIL (IllegalArgument) (message: "number of cylinders \"" + 
+                inString + "\": " + 
+                "Number of cylinders must be between 2 and 20 inclusive" )
+        ENDIF
+
+        cyl := inCyl
+    END SUBMODULE
+
+    SUBMODULE: setFuel
+    IMPORT: inFuel (String)
+    EXPORT: none
+    ASSERTION: Sets the fuel type of the current object if imports are
+        valid and FAILS otherwise
+    ALGORITHM:
+        IF inFuel.equals<--"" THEN
+            //If import is empty
+            FAIL (IllegalArgument) (message: "fuel type \"" + inFuel + 
+                "\": " + "Fuel type cannot be empty" )
+        ENDIF
+        IF NOT validateFuel<--inFuel THEN
+            //If import is not a valid fuel type
+            FAIL (IllegalArgument) (message: "fuel type \"" + inFuel + 
+                "\": " + "Fuel type must be Battery, Bio, or Diesel. " + 
+                "Casing does not matter" )
+        ENDIF
+
+        fuel := inFuel
+    END SUBMODULE
+
+    PRIVATE VALIDATION SUBMODULES:
+    SUBMODULE: validateCyl
+    IMPORT: inCyl (int)
+    EXPORT: valid (boolean)
+    ASSERTION: integer between 2 and 20 inclusive
+    ALGORITHM:
+        valid := ( inCyl >= 2 ) AND ( inCyl <= 20 )
+    END SUBMODULE
+
+    SUBMODULE: validateFuel
+    IMPORT: inFuel (String)
+    EXPORT: valid (boolean)
+    ASSERTION: String either "BIO" or "BATTERY" or "DIESEL"
+    ALGORITHM:
+        upFuel (String) := 
+            CONSTRUCT upFuel (String) USING copy<--inFuel.toUpperCase<--none
+        valid := upFuel.equals<--BIO OR upFuel.equals<--BATT OR
+            upFuel.equals<--DIES
+    END SUBMODULE
+    END VALIDATION SUBMODULES
+
+END CLASS

@@ -1,0 +1,190 @@
+CLASS: JetClass inherits from ShipClass
+
+    PRIVATE CLASS FIELDS:
+        wing (real) //Fighter jet wing span
+        ordnance (String) //Fighter jet ordnance
+
+    CONSTRUCTORS:
+    DEFAULT CONSTRUCTOR
+    IMPORT: none
+    EXPORT: adress of new JetClass object
+    ASSERTION: serial number 150.500, manufacturing year 2000, default
+        engine, wing 15.0, ordnance "machine guns"
+    ALGORITHM:
+        super default constructor
+        wing := 15.0
+        ordnance := CONSTRUCT ordnance USING copy<--"machine guns"
+    END SUBMODULE
+
+    ALTERNATE CONSTRUCTOR
+    IMPORT: inSerial (String), inYear (int), inEngine (EngineClass),
+        inWing (real), inOrdnance (String)
+    EXPORT: adress of new JetClass object
+    ASSERTION: creates the object if the imports are valid and FAILS
+        otherwise
+    ALGORITHM:
+        super alternate constructor<--inSerial, inYear, inEng
+        setWing<--inWing
+        setOrdnance<--CONSTRUCT outOrdnance (String) USING copy<--inOrdnance
+    END SUBMODULE
+
+    COPY CONSTRUCTOR
+    IMPORT: inJet (JetClass)
+    EXPORT: adress of new JetClass object
+    ASSERTION: Creates new object with identical object state as the import
+    ALGORITHM:
+        super copy contructor<--inJet
+        wing := inJet.getWing<--none
+        ordnance := CONSTRUCT outOrdnance (String) 
+            USING copy<--inJet.getOrdnance<--none
+    END SUBMODULE
+    END CONSTRUCTORS
+
+    SUBMODULE: clone
+    IMPORT: none
+    EXPORT: cloneJetClass (JetClass)
+    ASSERTION: Creates new object with identical object state as the import
+    ALGORITHM:
+        CONSTRUCTOR cloneJetClass (JetClass) USING copy<--this
+    END SUBMODULE
+
+    ACCESSORS
+    SUBMODULE: getWing
+    IMPORT: none
+    EXPORT: wing (real)
+    ALGORITHM: none
+    END SUBMODULE
+
+    SUBMODULE: getOrdnance
+    IMPORT: none
+    EXPORT: CONSTRUCT outOrdnance (String) USING copy<--ordnance
+    ALGORITHM: none
+    END ACCESSORS
+
+    SUBMODULE: equals
+    IMPORT: inObj (object)
+    EXPORT: same (boolean)
+    ASSERTION: jets are equals if they share serial, year, ordnance 
+        and wing
+    ALGORITHM:
+        same (boolean) := false
+        IF inObj ISA JetClass THEN
+            inJet (JetClass) := (Convert to JetClass)inObj
+            same := ( ( super.equals<--inJet ) AND
+                ( Math.abs<--( wing - inJet.getWing<--none ) < 0.001 ) AND
+                ( ordnance.equals<--inJet.getOrdnance<--none ) )
+        ENDIF
+    END SUBMODULE
+
+    SUBMODULE: toString
+    IMPORT: none
+    EXPORT: outString (String)
+    ASSERTION: Exports string containing all object state in a human
+        readable format
+    ALGORITHM:
+        outString := "The ship " + super.getSerial<--none + 
+            " was comissioned in " + super.getYear<--none + ", " + 
+            super.getEng<--none.toString<--none +
+            " It is a fighter jet with a wing span of " + wing +
+            " meters and equipped with " + ordnance + "."
+    END SUBMODULE
+
+    SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: outString (String)
+    ASSERTION: Exports string containing all object state in a format 
+        for fileIO
+    ALGORITHM:
+        outString := "F," + super.getSerial<--none + "," + 
+            super.getYear<--none + "," + 
+            super.getEng<--none.toFileString<--none + "," + wing + "," + 
+            ordnance
+    END SUBMODULE
+
+    SUBMODULE: calcTravel
+    IMPORT: inDistance (int)
+    EXPORT: hours (real)
+    ASSERTION: Finds the number of hours taken to travel a distance
+    ALGORITHM:
+        distance (real) := (Convert to real)inDistance
+        cylinders (real) := 
+            (Convert to real)( super.getEng<--none.getCyl<--none )
+
+        hours (real) := distance / ( wing * cylinders * 150 )
+    END SUBMODULE
+
+    MUTATORS:
+    SUBMODULE: setOrdnance
+    IMPORT: inOrdnance (String)
+    EXPORT: none
+    ALGORITHM:
+        IF NOT validateOrdnance<--inOrdnance THEN
+            //If import is not valid ordnance/is empty
+            FAIL (IllegalArgument) (message: "ordnance \"" + inOrdnance + 
+                "\":\n |  " + "Ordnance cannot be empty" )
+        ENDIF
+
+        ordnance := inOrdnance
+    END SUBMODULE
+
+    SUBMODULE: setWing
+    IMPORT: inWing (real)
+    EXPORT: none
+    ALGORITHM:
+        IF NOT validateWing<--inWing THEN
+            //If import is not a vlaid wing span
+            FAIL (IllegalArgument) (message: "wing span \"" + inWing + 
+                "\":\n |  " + 
+                "Wing span must be between 2.20 and 25.6 inclusive" )
+        ENDIF
+
+        wing := inWing
+    END SUBMODULE
+
+    SUBMODULE: setWing
+    IMPORT: inString (String)
+    EXPORT: none
+    ASSERTION: Sets the wing span by parsing a string to real
+    ALGORITHM:
+        inWing (real)
+        IF inString.equals<--"" THEN
+            //If import is empty
+            FAIL (IllegalArgument) (message:
+                "wing span \"\": Wing span cannot be empty" )
+        ENDIF
+        TRY
+            inWing := (Parse to real)inString
+        ENDTRY
+        CATCH NumberFormat
+            //If import is not a real
+            FAIL (IllegalArgument) (message: "wing span \"" + inString + 
+                "\": " + "Wing span must be a real number" )
+        ENDCATCH
+        IF NOT validateWing<--inWing THEN
+            //If import is not a valid wing span
+            FAIL (IllegalArgument) (message: "wing span \"" + inString + 
+                "\": " + "Wing span must be between 2.20 and 25.6 inclusive" )
+        ENDIF
+
+        wing := inWing
+    END SUBMODULE
+
+    PRIVATE VALIDATION SUBMODULES:
+    SUBMODULE: validateOrdnance
+    IMPORT: inOrdnance (String)
+    EXPORT: valid (boolean)
+    ASSERTION: non-empty String
+        valid := NOT inOrdnance.equals<--""
+    END SUBMODULE
+
+    SUBMODULE: validateWing
+    IMPORT: inWing (real)
+    EXPORT: valid (boolean)
+    ASSERTION: real between 2.20 and 25.6 inclusive
+        valid := ( (inWing > 2.20) AND (inWing < 25.6) ) OR
+            ( Math.abs<--( inWing - 2.20 ) < 0.001 ) OR
+            ( Math.abs<--( inWing - 25.6 ) < 0.001 )
+    END SUBMODULE
+    END VALIDATION SUBMODULES
+
+END CLASS

@@ -1,0 +1,294 @@
+CLASS: UI
+
+PUBLIC CLASS CONSTANTS:
+    //Colours for placement in strings
+    CYLW (String) = NEW String<-YELLOW COLOUR
+    CCYN (String) = NEW String<-CYAN COLOUR
+    CRED (String) = NEW String<-RED COLOUR
+    CC (String) = NEW String<-STOP COLOUR
+    // New line starters.
+    UIDOT (String) = NEW String<-"[-] " //For messages
+    UITAB (String) = NEW String<-" |  " //For continuing messages
+    UIERR (String) = NEW String<-CRED + "[!] " + CC //For errors
+    UIINP (String) = NEW String<-CYLW + "[>] " + CC //For user input
+    // Constants for utility headers also (UIM, UIL, etc)
+
+CLASS FIELDS: Ships (ShipStorage)
+
+CONSTRUCTOR:
+Default:
+    IMPORT: none
+    EXPORT: memory address of new UI Object
+    ASSERTION: initialises Ships Object
+    ALGORITHM:
+        Ships = NEW ShipStorage<-none
+    ENDSUBMODULE
+
+    SUBMODULE: mainMenu
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: displays the main menu to the user
+    ALGORITHM:
+        utilMenu (char) = 'M'
+        WHILE menu (char) != 'E'
+            IF( utilMenu == 'M' && utilMenu != E ) THEN
+                displayTitle<-none
+                displayMenu<-none
+                menu = inputMenu<-"Please select an option:"
+            ELSE
+                menu = utilMenu
+            ENDIF
+            CASE menu
+                'L':
+                    //Load ships from file
+                    OUTPUT UIL
+                    utilMenu = loadShips<-none
+                'S':
+                    //Save ships to file
+                    OUTPUT UIS
+                    utilMenu = saveShips<-none
+                'N':
+                    //New ship from user input
+                    OUTPUT UIN
+                    utilMenu = createShip<-none
+                'V':
+                    //View all ships
+                    OUTPUT UIV
+                    utilMenu = viewShips<-none
+                'D':
+                    //Destination calculator
+                    OUTPUT UID
+                    utilMenu = destination<-none
+                'F':
+                    //Find duplicate ships
+                    OUTPUT UIF
+                    utilMenu = duplicatesString<-none
+                'E':
+                    //Exit program
+                    displayExit<-none
+            ENDCASE
+        ENDWHILE
+    ENDSUBMODULE
+        
+    SUBMODULE: inputMenu
+    IMPORT: none
+    EXPORT: menu (char)
+    ASSERTION: Gets a user input char either l,s,n,v,d,f,e upper/lower case
+    ALGORITHM:
+        menu (char) = '0'
+        error (String) = ("")
+        inString (String) = NEW String("")
+        DO
+            OUTPUT error + UIDOT + message + NEWLINE + UIINP
+            INPUT inString
+            IF( NOT inString.equals<-"" ) THEN
+                CASE inString.CHARAT(0).TOUPPERCASE
+                    'L': 'S': 'N': 'V': 'D': 'F': 'E':
+                        menu = inString.CHARAT(0).TOUPPERCASE
+                        error = ("")
+                DEFAULT:
+                    message = ( UIERR + "Error: Invalid menu selection \"" +
+                        inString + "\"" + NEWLINE )
+                ENDCASE
+            ELSE
+                CLEAR INPUT BUFFER
+                error = UIERR + "Error: Menu selection cannot be empty" +
+                    NEWLINE
+        WHILE !error.equals("")
+    ENDSUBMODULE            
+
+    SUBMODULE: createShip
+    IMPORT: none
+    EXPORT: utilMenu (char)
+    ASSERTION: creates new sub or jet from user input and adds to respective
+        array in Ships
+    ALGORITHM:
+        type (char) = '0', menu (char) = '0'
+        CONSTRUCT sc (USER INPUT OBJECT)
+
+        OUTPUT UIDOT + "New Ship" + NEWLINE
+        type = Ships.inputType<-none
+        IF type == 'S' THEN
+            CONSTRUCT Sub CLASS SubClass DEFAULT
+            Ships.inputSerial<-Sub, sc
+            Ships.inputYear<-Sub, sc
+            Ships.inputEng<-Sub, sc
+            Ships.inputHull<-Sub, sc
+            Ships.inputDepth<-Sub, sc
+            Ships.addShip<-Sub
+        ELSE IF( ( type == 'F' ) || ( type == 'J' ) ) THEN
+            CONSTRUCT Jet CLASS JetClass DEFAULT
+            Ships.inputSerial<-Jet, sc
+            Ships.inputYear<-Jet, sc
+            Ships.inputEng<-Jet, sc
+            Ships.inputWing<-Jet, sc
+            Ships.inputOrdnance<-Jet, sc
+            Ships.addShip<-Jet
+        ENDIF
+
+        OUTPUT UIDOT + "Ship added sucessfulyy" + NEWLINE + UITAB +
+            "You have " + ( Ships.MAXSHIPS - Ships.getTotal<-none ) +
+            " ship slots left" + NEWLINE + UITAB + NEWLINE
+
+        utilMenu = inputMenu<-"//Shortened menu screen"
+    ENDSUBMODULE
+
+    SUBMODULE: laodShips
+    IMPORT: none
+    EXPORT: utilMenu (char)
+    ASSERIION: Gets file name from user and saves ships to file using
+        file.load
+    ALGORITHM:
+        CONSTRUCT file CLASS File DEFAULT
+        message (String) = NEW String<- UIDOT +
+            "Enter file name to load ships from"
+        error (String) = NEW String<- ""
+        DO
+            OUTPUT error + message + NEWLINE + UIINP
+            INPUT fileName (String)
+            IF NOT fileName.equals<-"" THEN
+                error = ""
+            ELSE
+                error = UIERR + "Error: File name cannot be empty" + NEWLINE
+            ENDIF
+        WHILE NOT error.equals<-""
+
+        file.load<-fileName, Ships
+
+        OUTPUT UITAB + NEWLINE
+
+        utilMenu = inputMenu<-"//Shortened menu screen"
+    ENDSUBMODULE
+
+    SUBMODULE: saveShips
+    IMPORT: none
+    EXPORT: utilMenu (Char)
+    ASSERTION: Gets a file name and uses File.load to load ships into storage
+        from a file
+    ALGORITH:
+        message (String) = NEW String(UIDOT + "Enter file name to load ships"
+            + " from")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            INPUT fileName (String)
+            IF !fileName.equals("") THEN
+                error = ("")
+            ELSE
+                error = (UIERR + "Error: File Name cannot be emtpy" + NEWLINE)
+            ENDIF
+        WHILE !error.equals("")
+
+        TRY
+            File.save<-fileName,Ships
+                //Imports filename and ShipStorage obj
+            OUTPUT (UIDOT + "Ships loaded successfully" + NEWLINE)
+                CATCH InvalidArgumentException
+            OUTPUT (UIERR + "Error: " + EXCEPTIONMESSAGE + NEWLINE )
+        ENDCATCH
+    ENDSUBMODULE
+
+    SUBMODULE: viewShips
+    IMPORT: none
+    EXPORT: ships (String)
+    ASSERTION: Puts all ship's .toString's in a single String
+    ALGORITHM:
+        ships (String) = NEW String(UIDOT + "Ships in Storage:" + NEWLINE)
+        FOR i = 0 TO Ships.getSubNum<-none INC 1
+            ships = ships + UITAB + (Ships.getSub<-i).toString<-none
+        ENDFOR
+        FOR i = 0 TO Ships.getJetNum<-none INC 1
+            ships = ships + UITAB + (Ships.getJet<-i).toString<-none
+        ENDFOR
+        IF ships.equals(UIDOT + "Ships in Storage:" + NEWLINE) THEN
+            ships = UIDOT + "No ships in storage" + NEWLINE
+        ENDIF
+    ENDSUBMODULE
+
+    SUBMODULE: duplicates
+    IMPORT: none
+    EXPORT: dupes (String)
+    ASSERTION: Makes a long string of all ship duplicates using the
+        finDuplicates method in ShipStorage
+    ALGORITHM:
+        dupes (String) = NEW String(UIDOT + "Duplicate Ships:" + NEWLINE)
+        dupeArr (ARRAY OF String) = Ships.findDuplicates<-none
+        FOR i = 0 TO (dupeArr.LENGTH - 1) INC 1
+            IF dupeArr[i] != null THEN
+                dupes = ( dupes + UITAB + dupeArr[i] + NEWLINE )
+            ENDIF
+        ENDFOR
+        IF dupes.equals(UIDOT + "Duplicate Ships:" + NEWLINE) THEN
+            dupes = UIDOT + "No duplicates found"
+        ENDIF
+    ENDSUBMODULE
+
+    SUBMODULE: destination
+    IMPORT: none
+    EXPORT: fastest (String)
+    ASSERTION: Exports the ship that takes the shortest amount of time to
+        travel a distance using the destinationCheck method in ShipStorage
+    ALGORITHM:
+        message (String) = NEW String(UIDOT + "Enter distance to travel")
+        error (String) = NEW String("")
+        DO
+            OUTPUT ( error + message + NEWLINE + UIINP )
+            TRY
+                INPUT distance (integer)
+                IF distance <= 0 THEN
+                    error = UIERR + "Error: Distance must be greater than 0"
+                        + NEWLINE
+                ELSE
+                    error = ""
+                ENDIF
+            CATCH InputMismatchException
+                CLEAR INPUT BUFFER
+                error = UIERR + "Error: Input must be an integer" + NEWLINE
+            ENDCATCH
+        WHILE !error.equals("")
+        fastest = new String( UIDOT + Ships.destinationCheck<-distance )
+    ENDSUBMODULE
+
+    SUBMODULE: destination
+    IMPORT: none
+    EXPORT: utilMenu (char)
+    ASSERTION: Outputs ship that takes shortest amount of time to travel
+        distance
+    ALGORITHM:
+        message (String) = UIDOT + "Enter distance to travel (meters)"
+        //INPUT NUMBER OF METERS TO TRAVEL
+        OUTPUT Ships.destinationCheck<-distance
+
+        utilMenu = inputMenu<-"//Shortened menu options"
+    ENDSUBMODULE
+
+    SUBMODULE: displayMenu
+    IMPORT/EXPORT: none
+    ASSERTION: Prints the main menu
+    ALGORITHM:
+        OUTPUT //Main menu options
+    ENDSUBMODULE
+
+    SUBMODULE: displayExit
+    IMPORT/EXPORT: none
+    ASSERTION: Clears the screen for program exit
+    ALGORITHM:
+        CLEAR TERMINAL SCREEN AND MOVE CURSOR TO TOP LEFT
+    ENDSUBMODULE
+
+    SUBMODULE: displayCrash
+    IMPORT/EXPORT: none
+    ASSERTION: Clears the screen for program exit and shows crash message
+    ALGORITHM:
+        CLEAR TERMINAL SCREEN AND MOVE CURSOR TO TOP LEFT
+        OUTPUT UIERR + "Program encountered an unexpected error" + NEWLINE
+    ENDSUBMODULE
+
+    SUBMODULE: displayTitle
+    IMPORT/EXPORT: none
+    ASSERTION: Prints the title with 'version number'
+    ALGORITHM:
+        CLEAR TERMINAL SCREEN AND MOVE CURSOR TO TOP LEFT
+        OUTPUT //Ascii text art "ShipManager" with randomly generated
+            //version number
+    ENDSUBMODULE

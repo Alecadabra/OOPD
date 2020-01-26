@@ -1,0 +1,150 @@
+Author: Alec Maughan
+Date: 9/5/19
+Purpose: Handle file I/O for loading and saving ships
+
+CLASS: File
+
+    SUBMODULE: load
+    IMPORT: fileName (String), Ships (ShipStorage)
+    EXPORT: message (String)
+    ASSERTION: Reads ships from file and adds them to storage
+    ALGORITHM:
+        line := NEW ARRAY OF String SIZE OF 7
+            //Array of split values from fullLine
+        lineNum (integer) := 1 //Keeps track of current line for messages etc.
+        TRY
+            LOAD FILE fileName
+            fullLine := READ LINE
+            WHILE fullLine NOT EOF THEN
+                line := fullLine.split<--",", 7
+                    // Stops at ordnance to allow for commas
+                IF line[0].equals<--"S" THEN
+                    CONSTRUCT sub (SubClass) USING default
+                    CONSTRUCT subEng (EngineClass) USING default
+                    sub.setSerial<--line[1]
+                    sub.setYear<--line[2]
+                    subEng.setCyl<--line[3]
+                    subEng.setFuel<--line[4]
+                    sub.setHull<--line[5]
+                    sub.setDepth<--line[6]
+                    sub.setEng<--subEng
+                    Ships.addShip<--sub
+                ELSE IF line[0].equals<--"F" THEN
+                    CONSTRUCT jet (JetClass) USING default
+                    CONSTRUCT jetEng (EngineClass) USING default
+                    jet.setSerial<--line[1]
+                    jet.setYear<--line[2]
+                    jetEng.setCyl<--line[3]
+                    jetEng.setFuel<--line[4]
+                    jet.setWing<--line[5]
+                    jet.setOrdnance<--line[6]
+                    jet.setEng<--jetEng
+                    Ships.addShip<--jet
+                ELSE
+                    //Line is not a submarine or a fighter jet
+                    FAIL (IllegalArgument) (message: "ship type := \"" + 
+                        line[0] + "\": Ship type " + 
+                        "must be Submarine (S) or Fighter Jet (F)" )
+                ENDIF
+                fullLine := READ LINE
+                lineNum = lineNum + 1
+            ENDWHILE
+            CLOSE FILE
+
+            IF lineNum == 2 THEN //Successful load - One ship loaded
+                message := ( "Successfully loaded 1 ship. You have " + 
+                    Ships.getSlots() + " ship slots remaining" )
+            ELSE IF lineNum > 2 THEN //Succesfull load - Multiple ships loaded
+                message := ( "Successfully loaded " + <--lineNum - 1 ) + 
+                    " ships. You have " + Ships.getSlots() + 
+                    " ship slots remaining" )
+            ELSE //No ships loaded due to empty file
+                message := ( "Error: No ships in file" )
+            ENDIF
+        ENDTRY
+        CATCH IllegalArgument
+            message := ( "Error on line " + lineNum + " for " +
+                THROWN MESSAGE + ". " + ( lineNum - 1 ) + 
+                " ship(s) have been loaded. You have " + 
+                Ships.getSlots<--none + " ship slots remaining" )
+            // All errors from setter methods methods are thrown as
+            // IllegalArgumentException, The messages are formatted to add
+            // detail to the error message here
+        CATCH ArrayOutOfBounds
+            message := ( "Error on line " + lineNum + ": " +
+                line.LENGTH + " elements on line rather than 7. Line: \"" +
+                fullLine + "\". " + ( lineNum - 1 ) + 
+                " ship(s) have been loaded. You have " + 
+                Ships.getSlots<--none + " ship slots remaining" )
+            // If there are not enough values in a line
+        CATCH FileNotFound
+            message := ( "Error: File name \"" + fileName + "\" not found" )
+        CATCH IOException
+            IF FILE NOT OPEN THEN
+                TRY
+                    CLOSE FILE
+                ENDTRY
+                CATCH IOException
+                    message := ( "Error on line " + lineNum +
+                        ": Unknown error (Sorry). Line: \" " + fullLine +
+                        " \". Messages: \"" + THROWN MESSAGE + "\", \"" +
+                        THROWN MESSAGE 2 + "\"" )
+                ENDCATCH
+                message := ( "Error on line " + lineNum + 
+                    ": Unknown error (Sorry). Line: \" " + fullLine +
+                    " \". Message: \"" + THROWN MESSAGE + "\"" )
+            ELSE
+                message := ( "Error on line " + lineNum +
+                    ": Unknown error (Sorry). Line: \" " + fullLine +
+                    " \". Message: \"" + THROWN MESSAGE + "\"" )
+            ENDIF
+        ENDCATCH
+                    
+        IF FILE OPEN THEN
+            //If file is still open, close it
+            TRY
+                CLOSE FILE
+            ENDTRY
+            CATCH IOException
+                message := ( "Error on line " + lineNum +
+                    ": Unknown error (Sorry). Line: \" " + fullLine +
+                    " \". Message: \"" + THROWN MESSAGE + "\"" )
+            ENDCATCH
+        ENDIF
+    END SUBMODULE
+    
+    SUBMODULE: save
+    IMPORT: fileName (String), Ships (ShipStorage)
+    EXPORT: message (String)
+    ASSERTION: Saves all ships in storage to file
+    ALGORITHM:
+        TRY
+            OPEN FILE fileName
+            fileArr := NEW ARRAY OF String SIZE OF Ships.getShipNum<--none
+
+            FOR i := 0 TO Ships.getShipNum<--none INC 1
+                WRITE TO FILE (Ships.getShip<--i).toFileString<--none
+            ENDFOR
+                CLOSE FILE
+            message (String) := ( "Saved " + Ships.getShipNum<--none + 
+                " ships to " + fileName )
+        ENDTRY
+        CATCH IOException
+            IF FILE OPEN THEN
+                TRY
+                    CLOSE FILE
+                ENDTRY
+                CATCH IOException
+                    message := ( "Error: Unknown error (Sorry). Messages: \""
+                        + THROWN MESSAGE + "\", \"" + THROWN MESSAGE + "\"" )
+                ENDCATCH
+                message := ( "Error: Unknown error (Sorry). Message: \"" +
+                    THROWN MESSAGE + "\"" )
+            ELSE
+                message := ( "Error: Unknown error (Sorry). Message: \"" +
+                    THROWN MESSAGE + "\"" )
+            ENDIF
+        ENDCATCH
+    END SUBMODULE
+
+END CLASS
