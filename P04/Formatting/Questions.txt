@@ -1,0 +1,19 @@
+(a) It gets inputs for menu selection and outputs randomly generated numbers
+with arithmetic applied to them
+
+(b) 1 Main, 6 Submodules, Math.Random, Scanner. Total 9
+
+(c) About 3 per submodule
+
+(d) 4
+
+(e) Nothing, it just gets assigned to 0 if line 6's if statement is false.
+
+(f) Checks if an input is 1, gets a random number between 0 and 10 if true,
+assigns usefulThing to 0 if not.
+
+(g) 3
+
+(h) Pretty difficult
+
+(i) = (h);

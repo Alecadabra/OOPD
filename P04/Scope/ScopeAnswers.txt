@@ -1,0 +1,26 @@
+What line did the compile error occur?
+    In Scope 2
+
+Provide a detailed explanation of why the compile error occured,
+    The scope was trying to access a variable that didn't exist in their scope,
+    (elseVar) so the variable had to be declared at the start of the program
+    to fix the error.
+
+In Scope 1 two variables are used in the output statement. Where are they
+declared and why are they accessible within this scope?
+    Because they are declared in the main scope, which Scope 1 is inside of
+
+In Scope 3 there is a nested elseif, similar to scope 2. Why does this instance
+not cause an issue?
+    Because the variable it is accessing is declared in it's parent scope
+
+In Scope 4 the class constant CONS is initially accessed. The value is then
+overwritten, explain how this is possible.
+    CONS is declared as a integer variable inside of the scope, and it is 
+    this that is assigned a value from scanner, not the the CONS constant.
+
+When two variables of the same name exist, declared in different scopes,
+which variable is actually used?
+    The variable declared in the respective scope is used. A variable declared
+    in a scope stops existing once the scope ends.
+    
