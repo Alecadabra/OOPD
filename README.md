@@ -13,10 +13,10 @@ From the unit handbook:
 Contains my first ever code, beware.
 There's no proper commit history because it wasn't developed using GitHub.
 
-## Assignment
+## [Assignment](Assignment)
 
 A demonstration of implementing basic Object Orientation with abstract class inheritance, polymorphism and aggregation. Represents a ship management system for a wider program. Ships (Either Submarines or Fighter Jets) are stored and called upon for various functionalities. Data is read and saved to file. I made a very fancy text-based UI for it with my spare time.
 
-## Practical Excercises
+## [Practical Excercises](Practical%20Excercises)
 
 Weekly asessed assignments to demonstrate that week's course content. I don't provide the worksheets that these are based on for copyright reasons so they don't make a lot of sense without context.
