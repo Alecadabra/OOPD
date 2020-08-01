@@ -1,4 +1,4 @@
-# Object-Oriented Software Engineering (Curtin University)
+# Object-Oriented Program Design (Curtin University)
 
 Part of my Computer Science degree at Curtin University. My final mark was 93%.
 
