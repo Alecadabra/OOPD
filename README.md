@@ -6,7 +6,7 @@ Part of my Computer Science degree at Curtin University. My final mark was 93%.
 --- | --- | --- | --- | --- | --- |
 **OOPD** | [UCP](https://github.com/Alecadabra/UCP)<br>[DSA](https://github.com/Alecadabra/DSA) | [OS](https://github.com/Alecadabra/OS)<br>[OOSE](https://github.com/Alecadabra/OOSE)
 
-From the unit handbook:
+Syllabus:
 
 > Introduction to Unix. This unit introduces students to Object Oriented Algorithm Design and how to implement software designs in the Java programming language. Topics covered include: Compiling and executing a Java program, Primitive data types, Numeric expressions, how to design and implement sub modules, the principles behind algorithm control structures and their implementation in Java, object-oriented programming, message passing, inheritance and abstract classes. Implementation of object oriented programming in Java.
 
