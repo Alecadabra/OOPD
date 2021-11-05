@@ -1,6 +1,6 @@
-# Object-Oriented Program Design (Curtin University 2019)
+# Object-Oriented Program Design
 
-Part of my Computer Science degree at Curtin University. My final mark was 93%.
+Part of my Computer Science degree at Curtin University in 2019. My final mark was 93%.
 
 Contains my first ever code, beware.
 There's no proper commit history because it wasn't developed using GitHub.
