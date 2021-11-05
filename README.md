@@ -8,6 +8,9 @@ There's no proper commit history because it wasn't developed using GitHub.
 <table>
   <thead>
     <tr>
+      <th colspan="6">Curtin University • BSc Computer Science</th>
+    </tr>
+    <tr>
       <th colspan="2">2019 • 1st Year</th>
       <th colspan="2">2020 • 2nd Year</th>
       <th colspan="2">2021 • 3rd Year</th>
